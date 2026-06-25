@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nexi Payment Pricing Calculator</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <img src="nexi-logo.png" alt="Nexi" class="logo">
+    <div class="topbar-text">
+      <h1>Payment Pricing Calculator</h1>
+      <p>Internes KAM-Tool &middot; Beta</p>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+
+  <div class="beta-banner">
+    <strong>Beta-Version.</strong> Interchange- und Scheme-Fee-Sätze sind Platzhalter und noch nicht final hinterlegt. Nicht ungeprüft im Kundengespräch als Nexi-Referenzwerte verwenden.
+  </div>
+
+  <!-- Mode switch -->
+  <div class="mode-switch" role="tablist" aria-label="Berechnungsmodus">
+    <button id="mode-blended" class="mode-btn active" role="tab" aria-selected="true">Blended</button>
+    <button id="mode-icpp" class="mode-btn" role="tab" aria-selected="false">IC++ (granular)</button>
+  </div>
+
+  <!-- Shared volume input -->
+  <section class="card">
+    <div class="field-row">
+      <div class="field">
+        <label for="volume">Jahresvolumen Kartenumsatz</label>
+        <div class="input-suffix">
+          <input type="number" id="volume" value="5000000" step="10000" min="0">
+          <span class="suffix">CHF</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Blended inputs -->
+  <section id="blended-inputs" class="two-col">
+    <div class="card accent-nexi">
+      <p class="card-label">Nexi Angebot</p>
+      <div class="field">
+        <label for="nexi-bp">Effektivsatz (Blended)</label>
+        <div class="input-suffix">
+          <input type="number" id="nexi-bp" value="9" step="0.1">
+          <span class="suffix">bp</span>
+        </div>
+      </div>
+    </div>
+    <div class="card accent-comp">
+      <p class="card-label">Wettbewerber</p>
+      <div class="field">
+        <label for="comp-bp">Effektivsatz (Blended)</label>
+        <div class="input-suffix">
+          <input type="number" id="comp-bp" value="10" step="0.1">
+          <span class="suffix">bp</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- IC++ inputs -->
+  <section id="icpp-inputs" class="hidden">
+
+    <div class="card">
+      <div class="card-header-row">
+        <p class="card-label">Kartenmix, Interchange &amp; Scheme Fee</p>
+        <span id="share-sum" class="share-sum">Summe Anteile: 100 %</span>
+      </div>
+      <div id="card-mix-rows"></div>
+      <p class="hint-text">Default-Werte sind Platzhalter (EU-Caps für Debit/Credit Consumer). Commercial-, Premium- und Non-EU-Sätze vor Kundeneinsatz mit echten Nexi-Referenzdaten ersetzen.</p>
+    </div>
+
+    <div class="two-col">
+      <div class="card accent-nexi">
+        <p class="card-label">Nexi Acquiring Service Fee (ASF)</p>
+        <div class="field">
+          <label for="nexi-asf-bp">Variable ASF</label>
+          <div class="input-suffix">
+            <input type="number" id="nexi-asf-bp" value="5" step="0.1">
+            <span class="suffix">bp</span>
+          </div>
+        </div>
+        <div class="field">
+          <label for="nexi-asf-fix">Fixe Transaktionsgebühr</label>
+          <div class="input-suffix">
+            <input type="number" id="nexi-asf-fix" value="0" step="0.01">
+            <span class="suffix">CHF / Tx</span>
+          </div>
+        </div>
+      </div>
+      <div class="card accent-comp">
+        <p class="card-label">Wettbewerber Acquiring Service Fee (ASF)</p>
+        <div class="field">
+          <label for="comp-asf-bp">Variable ASF</label>
+          <div class="input-suffix">
+            <input type="number" id="comp-asf-bp" value="6" step="0.1">
+            <span class="suffix">bp</span>
+          </div>
+        </div>
+        <div class="field">
+          <label for="comp-asf-fix">Fixe Transaktionsgebühr</label>
+          <div class="input-suffix">
+            <input type="number" id="comp-asf-fix" value="0" step="0.01">
+            <span class="suffix">CHF / Tx</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="fix-fee-note" class="hint-text fix-note hidden">
+      Hinweis: Fixe Transaktionsgebühren sind aktuell nicht in der Gesamtsumme enthalten, da die Transaktionsanzahl noch nicht als Inputgrösse hinterlegt ist. Dieses Feld dient vorerst nur der Erfassung für die spätere Version.
+    </div>
+
+  </section>
+
+  <!-- Output -->
+  <section class="output-section">
+
+    <div class="metric-grid">
+      <div class="metric-card highlight">
+        <p class="metric-label">Ersparnis pro Jahr</p>
+        <p id="metric-savings-abs" class="metric-value">CHF 0</p>
+      </div>
+      <div class="metric-card highlight">
+        <p class="metric-label">Ersparnis relativ</p>
+        <p id="metric-savings-pct" class="metric-value">0.000 %</p>
+      </div>
+      <div class="metric-card">
+        <p class="metric-label">Nexi Effektivsatz</p>
+        <p id="metric-nexi-eff" class="metric-value">0.00 bp</p>
+      </div>
+      <div class="metric-card">
+        <p class="metric-label">Wettbewerber Effektivsatz</p>
+        <p id="metric-comp-eff" class="metric-value">0.00 bp</p>
+      </div>
+    </div>
+
+    <div class="breakdown">
+      <div class="breakdown-row">
+        <div class="breakdown-row-header">
+          <span class="breakdown-name">Nexi</span>
+          <span id="breakdown-nexi-total" class="breakdown-total">CHF 0</span>
+        </div>
+        <div class="bar-track">
+          <div id="bar-nexi-interchange" class="bar-seg seg-interchange"></div>
+          <div id="bar-nexi-scheme" class="bar-seg seg-scheme"></div>
+          <div id="bar-nexi-asf" class="bar-seg seg-asf-nexi"></div>
+        </div>
+      </div>
+      <div class="breakdown-row">
+        <div class="breakdown-row-header">
+          <span class="breakdown-name">Wettbewerber</span>
+          <span id="breakdown-comp-total" class="breakdown-total">CHF 0</span>
+        </div>
+        <div class="bar-track">
+          <div id="bar-comp-interchange" class="bar-seg seg-interchange"></div>
+          <div id="bar-comp-scheme" class="bar-seg seg-scheme"></div>
+          <div id="bar-comp-asf" class="bar-seg seg-asf-comp"></div>
+        </div>
+      </div>
+      <div id="legend" class="legend"></div>
+    </div>
+
+  </section>
+
+  <footer class="footer-note">
+    Nexi Switzerland AG &middot; Internes Tool für Key Account Management &middot; Beta-Version, nicht final geprüft
+  </footer>
+
+</main>
+
+<script src="calculator.js"></script>
+</body>
+</html>
