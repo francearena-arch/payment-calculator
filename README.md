@@ -1,15 +1,10 @@
-# Nexi Payment Vergleichsrechner · v3.4
+# Nexi Payment Vergleichsrechner · Pilot v3.4.1
 
-`index.html` im Browser öffnen. Eingaben bleiben lokal.
+Open `index.html` in a browser. The selector in the top right switches German, French, English and Italian. The current inputs and offer data remain when switching language. The printed PDF uses the selected language. Financial formulas and default assumptions are unchanged from v3.4.
 
-## Geschäftszahlen und Mix
-- Zahlungsumsatz und Anzahl Transaktionen umfassen Karten und TWINT.
-- Der sichtbare Zahlungsartenmix startet als **Beispielannahme**: Debit Mastercard 30 %, Visa Debit 30 %, Kreditkarten 25 %, TWINT 15 %, weitere Karten 0 %. Er ist vor einer Merchant-Weitergabe anzupassen und abzugleichen.
-- Prozentsätze werden mit dem Umsatzanteil jeder Zahlungsart gewichtet. Ohne separate Transaktionszahlen werden Fixbeträge pro Transaktion unter der ausdrücklich genannten Annahme berechnet, dass die Transaktionsanteile den Umsatzanteilen entsprechen.
-- Unter „Zahlungsartenmix anpassen“ kann man optional Transaktionen je Zahlungsart separat erfassen. Die Summe muss der Gesamtzahl entsprechen.
-- Mix, Status der Bestätigung und gegebenenfalls Transaktionszahlen stehen in der PDF-Berechnungsbasis.
-
-## Preismodelle
-Split Blend: separater Satz und optionaler Fixbetrag für Debit Mastercard, Visa Debit, Kredit Visa/Mastercard, TWINT und weitere Karten. IC++: Acquirer-Marge plus angenommene Interchange und Netzwerkgebühren für Karten; TWINT separat. Terminalmiete, weitere Fixkosten und Zuschläge je Angebot ergänzen.
-
-Alle vorgegebenen Mix- und IC++-Gebührensätze sind editierbare Schätzwerte. Erst auf Knopfdruck geladene Angebotssätze sind Demo-Werte, keine verbindlichen Nexi-Konditionen. Preis- und Vertragsbedingungen fachlich prüfen. Umsatz-Szenarien beruhen auf groben Stichproben, nicht auf exakten Schwellenwerten.
+## Calculation and assumptions
+- Turnover and transaction count include TWINT. Starting payment mix: Debit Mastercard 30%, Visa Debit 30%, credit cards 25%, TWINT 15%, other cards 0%; this is an example, not merchant data.
+- Split Blend uses a separate percentage and optional fixed transaction amount per payment method. IC++ adds editable interchange and scheme-fee estimates on cards; TWINT is priced separately.
+- If transactions by payment method are not entered separately, transaction shares are assumed equal to turnover shares.
+- The result and PDF identify whether the payment mix was marked as checked. Example rates load only after an explicit click.
+- This is an indicative internal pilot. Scheme fee percentages omit transaction-specific fixed fees; offer terms, merchant mix and actual fees require review before sharing externally.
