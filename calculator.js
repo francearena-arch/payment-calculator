@@ -1,87 +1,19 @@
-(() => {
-  'use strict';
-  const $ = id => document.getElementById(id);
-  const format = n => new Intl.NumberFormat('de-CH', {maximumFractionDigits:0}).format(n);
-  const money = n => `CHF ${format(n)}`;
-  const pct = n => new Intl.NumberFormat('de-CH',{maximumFractionDigits:2}).format(n) + ' %';
-  const segments = [
-    {name:'Debit Consumer', share:'', interchange:'', scheme:''},
-    {name:'Credit Consumer', share:'', interchange:'', scheme:''},
-    {name:'Business / Commercial', share:'', interchange:'', scheme:''},
-    {name:'Weitere Karten', share:'', interchange:'', scheme:''}
-  ];
-  const offers = {
-    nexi:{model:'blended',rate:'',fixed:'',annual:''},
-    other:{model:'blended',rate:'',fixed:'',annual:''}
-  };
-  const numeric = value => value !== '' && Number.isFinite(Number(value)) && Number(value) >= 0 ? Number(value) : null;
-  function field(label, key, value, suffix, step) {
-    return `<label>${label}<span class="control"><input data-key="${key}" type="number" min="0" step="${step}" inputmode="decimal" value="${value}" placeholder="0"><b>${suffix}</b></span></label>`;
-  }
-  function renderOffer(id) {
-    const o=offers[id], holder=$(id+'-fields');
-    holder.innerHTML=`<label>Preismodell<select data-key="model"><option value="blended" ${o.model==='blended'?'selected':''}>Blended · ein Gesamtsatz</option><option value="icpp" ${o.model==='icpp'?'selected':''}>IC++ · Gebühren getrennt</option></select></label>`+
-      field(o.model==='blended'?'Blended Satz':'Acquirer Fee / Marge','rate',o.rate,'%', '0.001')+
-      field('Fixbetrag pro Transaktion','fixed',o.fixed,'CHF','0.01')+
-      field('Weitere jährliche Fixkosten','annual',o.annual,'CHF','1')+
-      `<p class="subtle">${o.model==='blended'?'Gesamtsatz inklusive Karten- und Netzwerkgebühren eingeben.':'Interchange und Scheme Fees werden aus dem Kartenmix ergänzt.'}</p>`;
-    holder.querySelectorAll('[data-key]').forEach(el=>el.addEventListener(el.tagName==='SELECT'?'change':'input',()=>{
-      o[el.dataset.key]=el.value;
-      if(el.dataset.key==='model') renderOffer(id);
-      $('mix-details').classList.toggle('hidden',!Object.values(offers).some(x=>x.model==='icpp'));
-      calculate();
-    }));
-  }
-  function renderMix(){
-    $('mix-rows').innerHTML=segments.map((s,i)=>`<div class="mix-row"><strong>${s.name}</strong>${field('Umsatzanteil',`share-${i}`,s.share,'%','0.1')}${field('Interchange',`interchange-${i}`,s.interchange,'%','0.001')}${field('Scheme Fee',`scheme-${i}`,s.scheme,'%','0.001')}</div>`).join('');
-    $('mix-rows').querySelectorAll('input').forEach(el=>el.addEventListener('input',()=>{
-      const [key,i]=el.dataset.key.split('-');segments[Number(i)][key]=el.value;calculate();
-    }));
-  }
-  function calculate(){
-    const volume=numeric($('volume').value), tx=numeric($('transactions').value);
-    $('ticket').textContent=volume!==null&&tx>0?`Durchschnittlicher Kartenbon: ${money(volume/tx)}`:'';
-    const icpp=Object.values(offers).some(o=>o.model==='icpp');
-    let pass=0, mixValid=true;
-    if(icpp){
-      const sum=segments.reduce((a,s)=>a+(numeric(s.share)??0),0);
-      mixValid=segments.every(s=>numeric(s.share)!==null && (numeric(s.share)===0 || (numeric(s.interchange)!==null&&numeric(s.scheme)!==null)))&&Math.abs(sum-100)<0.01;
-      $('mix-status').textContent=`${new Intl.NumberFormat('de-CH',{maximumFractionDigits:1}).format(sum)} % zugeteilt`;
-      $('mix-error').textContent=mixValid?'':`Bitte die Umsatzanteile auf genau 100 % verteilen und für alle aktiven Segmente beide Gebührensätze eingeben.`;
-      if(mixValid) pass=segments.reduce((a,s)=>a+Number(s.share)/100*(Number(s.interchange||0)+Number(s.scheme||0))/100,0);
-    } else {$('mix-error').textContent='';$('mix-status').textContent='';}
-    const ready=volume!==null&&volume>0&&tx!==null&&tx>0&&mixValid&&Object.values(offers).every(o=>numeric(o.rate)!==null&&numeric(o.fixed)!==null&&numeric(o.annual)!==null);
-    $('message').hidden=ready;
-    $('result-body').hidden=!ready;
-    $('print').disabled=!ready;
-    if(!ready){$('message').textContent=icpp&&!mixValid?'Vervollständige den Kartenmix für die IC++-Berechnung.':'Gib Umsatz, Transaktionen und die Konditionen beider Angebote ein. Trage bei nicht erhobenen Fixgebühren 0 ein.';return;}
-    const calc=o=>{
-      const variable=volume*Number(o.rate)/100;
-      const network=o.model==='icpp'?volume*pass:0;
-      const txFees=tx*Number(o.fixed);
-      const annual=Number(o.annual);
-      return {variable,network,txFees,annual,total:variable+network+txFees+annual};
-    };
-    const a=calc(offers.nexi),b=calc(offers.other),diff=b.total-a.total;
-    $('result-label').textContent=Math.abs(diff)<0.005?'Beide Angebote kosten gleich':diff>0?'Nexi ist günstiger pro Jahr':'Vergleichsangebot ist günstiger pro Jahr';
-    $('difference').textContent=money(Math.abs(diff));
-    $('result-detail').textContent=`${Math.abs(diff)<0.005?'Keine Kostendifferenz':`${pct(Math.abs(diff)/(diff>0?b.total:a.total)*100 || 0)} gegenüber dem teureren Angebot`} · ${format(tx)} Transaktionen`;
-    $('monthly').textContent=money(Math.abs(diff)/12);
-    $('effective-a').textContent=pct(a.total/volume*100);
-    $('effective-b').textContent=pct(b.total/volume*100);
-    const max=Math.max(a.total,b.total,1);
-    $('bars').innerHTML=[['Nexi',a,'a'],['Vergleich',b,'b']].map(([name,r,cls])=>`<div class="bar-label"><strong>${name}</strong><strong>${money(r.total)}</strong></div><div class="bar-bg"><div class="bar ${cls}" style="width:${Math.max(0,r.total/max*100)}%"></div></div>`).join('');
-    $('breakdown').innerHTML=`<div class="breakdown-grid"><strong>Kostenbestandteil</strong><strong>Nexi</strong><strong>Vergleich</strong>${[['Variabler Angebotssatz','variable'],['Interchange + Scheme Fees','network'],['Transaktionsgebühren','txFees'],['Jährliche Fixkosten','annual'],['Gesamtkosten','total']].map(([name,key])=>`<span>${name}</span><span>${money(a[key])}</span><span>${money(b[key])}</span>`).join('')}</div>`;
-  }
-  ['volume','transactions'].forEach(id=>$(id).addEventListener('input',calculate));
-  $('demo').addEventListener('click',()=>{
-    $('volume').value=500000;$('transactions').value=10000;
-    Object.assign(offers.nexi,{model:'blended',rate:'1.25',fixed:'0.05',annual:'180'});
-    Object.assign(offers.other,{model:'blended',rate:'1.45',fixed:'0.08',annual:'240'});
-    segments.forEach((s,i)=>Object.assign(s,[{share:'55',interchange:'0.2',scheme:'0.12'},{share:'30',interchange:'0.3',scheme:'0.15'},{share:'10',interchange:'1.5',scheme:'0.2'},{share:'5',interchange:'2',scheme:'0.25'}][i]));
-    renderOffer('nexi');renderOffer('other');renderMix();$('mix-details').classList.add('hidden');calculate();
-    $('demo').textContent='Beispielwerte geladen';
-  });
-  $('print').addEventListener('click',()=>window.print());
-  renderOffer('nexi');renderOffer('other');renderMix();$('mix-details').classList.add('hidden');calculate();
+(()=>{'use strict';
+const $=id=>document.getElementById(id),fmt=(n,d=0)=>new Intl.NumberFormat('de-CH',{minimumFractionDigits:d,maximumFractionDigits:d}).format(n),chf=n=>`CHF ${fmt(n,2)}`,esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),n=v=>v!==''&&Number.isFinite(+v)&&+v>=0?+v:null;
+let seq=0,demo=false;
+const mix=[{name:'CH Debit Consumer',share:'65',ic:'0.20',scheme:'0.12'},{name:'CH Credit Consumer',share:'25',ic:'0.40',scheme:'0.15'},{name:'Europa Consumer',share:'7',ic:'0.65',scheme:'0.30'},{name:'Ausland / Business',share:'3',ic:'1.50',scheme:'0.70'}];
+const make=(name,provider='Nexi',model='blended')=>({id:++seq,name,provider,model,rate:'',txFee:'0',rent:'0',terminals:'1',monthly:'0',annual:'0',setup:'0',minimum:'0',surcharge:'0'});
+let offers=[make('Standard mit Terminal'),make('Ohne Terminalmiete'),make('Verbandskonditionen','Nexi','icpp')];
+const field=(label,key,value,unit,step='0.01')=>`<label>${label}<span class="control"><input data-key="${key}" type="number" min="0" step="${step}" inputmode="decimal" value="${esc(value)}"><b>${unit}</b></span></label>`;
+function renderMix(){ $('mix').innerHTML=mix.map((m,i)=>`<div class="mix-row"><strong>${esc(m.name)}</strong>${field('Umsatzanteil',`share:${i}`,m.share,'%','0.1')}${field('Interchange',`ic:${i}`,m.ic,'%','0.001')}${field('Scheme Fee',`scheme:${i}`,m.scheme,'%','0.001')}</div>`).join('');$('mix').oninput=e=>{let [key,i]=(e.target.dataset.key||'').split(':');if(key){mix[+i][key]=e.target.value;demo=false;calculate();}};}
+function renderOffers(){ $('offers').innerHTML=offers.map((o,i)=>`<article class="offer" data-id="${o.id}"><div class="offer-top"><span class="offer-number">${String(i+1).padStart(2,'0')}</span><button class="remove" data-action="remove" type="button">Entfernen</button></div><label>Name<input class="plain" data-key="name" maxlength="60" value="${esc(o.name)}"></label><div class="fields"><label>Anbieter<select data-key="provider"><option ${o.provider==='Nexi'?'selected':''}>Nexi</option><option ${o.provider==='Wettbewerber'?'selected':''}>Wettbewerber</option></select></label><label>Preismodell<select data-key="model"><option value="blended" ${o.model==='blended'?'selected':''}>Blended</option><option value="icpp" ${o.model==='icpp'?'selected':''}>IC++</option></select></label></div><div class="fields">${field(o.model==='icpp'?'Acquirer Markup':'Blended Disagio','rate',o.rate,'%','0.001')}${field('Fixgebühr je Transaktion','txFee',o.txFee,'CHF')}</div><p class="subtle">${o.model==='icpp'?'Interchange und Scheme Fees aus dem gemeinsamen Kartenmix werden ergänzt.':'Basis-Disagio inklusive Interchange und Scheme Fees; zusätzliche Zuschläge separat.'}</p><details class="cost-details"><summary>Terminal & weitere Kosten</summary><div class="fields">${field('Miete je Terminal / Monat','rent',o.rent,'CHF')}${field('Anzahl Terminals','terminals',o.terminals,'Stk.','1')}${field('Weitere Monatskosten','monthly',o.monthly,'CHF')}${field('Weitere Jahreskosten','annual',o.annual,'CHF')}${field('Einmalige Einrichtung','setup',o.setup,'CHF')}${field('Zusätzlicher variabler Zuschlag','surcharge',o.surcharge,'%','0.001')}${field('Mindestgebühr Acquiring / Monat','minimum',o.minimum,'CHF')}</div><p class="subtle">Mindestgebühr ersetzt tiefere Acquiring-Kosten. Zuschläge nur erfassen, wenn sie zusätzlich anfallen.</p></details><div class="offer-total" id="total-${o.id}">Konditionen ergänzen</div></article>`).join('');$('offers').querySelectorAll('.offer').forEach(card=>{const o=offers.find(x=>x.id===+card.dataset.id);card.addEventListener('input',e=>{if(e.target.dataset.key){o[e.target.dataset.key]=e.target.value;demo=false;calculate();}});card.addEventListener('change',e=>{if(e.target.dataset.key){o[e.target.dataset.key]=e.target.value;if(e.target.dataset.key==='model')renderOffers();demo=false;calculate();}});card.querySelector('[data-action="remove"]').onclick=()=>{if(offers.length<=2)return;offers=offers.filter(x=>x!==o);renderOffers();calculate();};});}
+function cost(o,c,v=c.volume){const tx=v*c.tx/c.volume,acquiring=v*(+o.rate+(o.model==='icpp'?c.pass*100:0))/100+tx*+o.txFee,minimum=Math.max(0,+o.minimum*12-acquiring),surcharge=v*+o.surcharge/100,terminal=12*+o.rent*+o.terminals,other=12*+o.monthly+(+o.annual),once=+o.setup/c.years;return {acquiring,minimum,surcharge,terminal,other,once,total:acquiring+minimum+surcharge+terminal+other+once};}
+function calculate(){const c={volume:n($('volume').value),tx:n($('tx').value),years:n($('years').value)},share=mix.reduce((s,m)=>s+(n(m.share)||0),0);c.pass=mix.reduce((s,m)=>s+(n(m.share)||0)/100*((n(m.ic)||0)+(n(m.scheme)||0))/100,0);c.mixValid=Math.abs(share-100)<.001&&mix.every(m=>['share','ic','scheme'].every(k=>n(m[k])!==null));$('mix-status').textContent=`${fmt(share,1)} % erfasst`;$('mix-error').textContent=c.mixValid?'':'Umsatzanteile müssen 100 % ergeben und alle Sätze ausgefüllt sein.';$('ticket').textContent=c.volume>0&&c.tx>0?`Durchschnittlicher Bon: ${chf(c.volume/c.tx)}`:'';
+const keys=['rate','txFee','rent','terminals','monthly','annual','setup','minimum','surcharge'];const valid=c.volume>0&&c.tx>0&&Number.isInteger(c.tx)&&Number.isInteger(c.years)&&c.years>=1&&c.years<=10&&(!offers.some(o=>o.model==='icpp')||c.mixValid)&&offers.every(o=>o.name.trim()&&keys.every(k=>n(o[k])!==null)&&Number.isInteger(+o.terminals));$('message').hidden=valid;$('result').hidden=!valid;$('print').disabled=!valid;if(!valid){$('message').textContent='Bitte Umsatz, Transaktionen und Konditionen aller Angebote ergänzen. Bei IC++ muss der Kartenmix 100 % ergeben.';offers.forEach(o=>{$(`total-${o.id}`).textContent='Konditionen ergänzen';});return;}
+$('print-basis').textContent=`Basis: ${chf(c.volume)} Kartenumsatz / Jahr · ${fmt(c.tx)} Transaktionen / Jahr · ${c.years} Jahr(e) Betrachtung · durchschnittlicher Bon ${chf(c.volume/c.tx)} · IC++-Kartenmix: ${mix.map(m=>m.name+' '+m.share+' % (IC '+m.ic+' %, Scheme '+m.scheme+' %)').join('; ')}`;const ranked=offers.map(o=>({...o,r:cost(o,c)})).sort((a,b)=>a.r.total-b.r.total);ranked.forEach(o=>{$(`total-${o.id}`).innerHTML=`<small>Geschätzte Jahreskosten</small><strong>${chf(o.r.total)}</strong>`;});$('winner').textContent=ranked[0].name;$('saving').textContent=`${ranked[0].provider} · ${chf(ranked[0].r.total)} / Jahr · ${chf(ranked[1].r.total-ranked[0].r.total)} weniger als die nächstgünstige erfasste Option`;
+const max=Math.max(1,...ranked.map(o=>o.r.total));$('ranking').innerHTML=ranked.map((o,i)=>`<div class="rank"><div class="rank-line"><div><b>${i+1}. ${esc(o.name)}</b><small>${o.provider} · ${o.model==='icpp'?'IC++':'Blended'}</small></div><strong>${chf(o.r.total)} / Jahr</strong></div><div class="bar-bg"><div class="bar ${i?'secondary':''}" style="width:${Math.max(2,o.r.total/max*100)}%"></div></div>${i?`<small>+ ${chf(o.r.total-ranked[0].r.total)} zum günstigsten Angebot</small>`:''}</div>`).join('');
+const vals=[.25,.5,.75,1,1.5,2,3,5].map(k=>Math.max(1000,Math.round(c.volume*k/1000)*1000)),changes=vals.map(v=>({v,o:[...offers].sort((a,b)=>cost(a,c,v).total-cost(b,c,v).total)[0]})).filter((x,i,a)=>!i||x.o.id!==a[i-1].o.id);$('thresholds').innerHTML=`<h3>Umsatz-Szenarien</h3><p class="subtle">Bonhöhe und Kartenmix bleiben gleich; Transaktionen skalieren mit dem Umsatz.</p><div class="threshold-list">${changes.map((x,i)=>`<div class="threshold"><span>${i?'Ab':'Bei'} ca. ${chf(x.v)} Jahresumsatz</span><strong>${esc(x.o.name)}</strong></div>`).join('')}</div><p class="footnote">Stichproben von 25–500 % des Umsatzes, keine exakten Break-even-Punkte. Weitere Wechsel zwischen Stichproben möglich.</p>`;
+$('breakdown').innerHTML=`<div class="table-wrap"><table><thead><tr><th>Pro Jahr</th>${ranked.map(o=>`<th>${esc(o.name)}</th>`).join('')}</tr></thead><tbody>${[['Acquiring inkl. Tx','acquiring'],['Mindestgebühr (Aufpreis)','minimum'],['Variable Zuschläge','surcharge'],['Terminalmiete','terminal'],['Weitere laufende Kosten','other'],['Einrichtung, anteilig','once'],['Gesamt','total']].map(([name,k])=>`<tr><td>${name}</td>${ranked.map(o=>`<td>${chf(o.r[k])}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+$('limits').textContent=`Stand ${new Intl.DateTimeFormat('de-CH').format(new Date())} · ${c.years} Jahr(e), Einrichtung anteilig. ${demo?'DEMO-WERTE; keine verbindlichen Tarife. ':''}Ohne MwSt., Chargebacks, Refunds, FX, DCC, PCI und nicht erfasste Sonderleistungen. Die Kostenaussage hängt vom Kartenmix und den tatsächlichen Verträgen ab. Geräte, Support, Service und Vertragsbedingungen separat bewerten.`;}
+$('add').onclick=()=>{offers.push(make('Neues Angebot','Wettbewerber'));renderOffers();calculate();};$('demo').onclick=()=>{Object.assign(offers[0],{rate:'1.25',txFee:'0.05',rent:'25'});Object.assign(offers[1],{rate:'1.48',txFee:'0.05',rent:'0'});Object.assign(offers[2],{rate:'0.48',txFee:'0.05',rent:'25'});demo=true;renderOffers();calculate();$('demo').textContent='Demo geladen';};$('print').onclick=()=>window.print();['volume','tx','years'].forEach(id=>$(id).oninput=calculate);renderMix();renderOffers();calculate();
 })();

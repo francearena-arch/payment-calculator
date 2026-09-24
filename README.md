@@ -1,19 +1,13 @@
-# Nexi Payment Insights — Kostenvergleich
+# Nexi Payment Advisor · Prototyp
 
-Statische, responsive Web-App ohne externe Abhängigkeiten. `index.html` im Browser öffnen oder die Dateien auf einem statischen Host bereitstellen.
+Statische Web-App: `index.html` im Browser öffnen. Keine Installation, keine Übermittlung der Eingaben.
 
-## Eingaben
+## Ablauf
+1. Kartenumsatz, Transaktionen und Betrachtungsdauer eingeben.
+2. Angebote frei hinzufügen; Anbieter und Preismodell je Angebot unabhängig wählen.
+3. Blended: gesamten Basis-Satz erfassen. IC++: Acquirer Markup erfassen und gemeinsamen Kartenmix bestätigen.
+4. Terminalmiete, Gebühren, Mindestgebühr, Einrichtung und zusätzliche Kosten je Angebot erfassen.
+5. Kostenranking, grobe Umsatz-Szenarien und Kostenblöcke prüfen; über Browserdruck als PDF speichern.
 
-Jahresumsatz und Transaktionszahl; pro Angebot Blended-Gesamtsatz oder IC++-Acquirer-Marge, Fixgebühr je Transaktion und jährliche Fixkosten. Bei IC++ zusätzlich ein gemeinsamer Umsatzmix mit Interchange- und Scheme-Satz je Segment. Nicht erhobene Fixgebühren explizit mit 0 eingeben. Das Beispiel wird nur auf Klick geladen und ist frei erfunden; es ist kein Preisangebot und keine Referenztabelle.
-
-## Berechnung
-
-Blended = Umsatz × Gesamtsatz / 100 + Transaktionen × Fixgebühr + jährliche Fixkosten.
-
-IC++ = Umsatz × (Acquirer-Marge + gewichteter Interchange- und Scheme-Satz) / 100 + Transaktionen × Fixgebühr + jährliche Fixkosten.
-
-Kartenmix muss 100 % ergeben. Für beide Angebote gelten dieselben durchgereichten Gebühren; dies ist eine vereinfachende Annahme und kann bei unterschiedlichem Scheme- oder Vertragsumfang falsch sein. Es werden nur eingegebene Positionen verglichen. MwSt., Terminalkosten, Aktivierung, Mindestumsatz, Chargebacks, Refunds und weitere Gebühren sind nicht enthalten. Für einen belastbaren Kundeneinsatz reale Angebotsdaten und den Vertragsumfang prüfen.
-
-## Veröffentlichung
-
-Bei GitHub Pages sind die Quelldateien öffentlich zugänglich, auch wenn eine verknüpfte Repository-Einstellung anders wirkt. Keine vertraulichen Tarife oder Kundendaten in den Code schreiben. Die Web-App speichert Eingaben nicht und sendet sie nicht an einen Server.
+## Methodik und Grenzen
+Jahreskosten = Acquiring (Umsatz × Basissatz plus IC/Scheme bei IC++; Transaktionen × Fixgebühr) + Aufpreis auf monatliche Acquiring-Mindestgebühr + zusätzliche variable Zuschläge + Terminalmiete + sonstige laufende Kosten + einmalige Einrichtung geteilt durch Betrachtungsjahre. Alle Angebote nutzen denselben Kartenmix. Die Umsatz-Szenarien nutzen acht Stichproben und halten den Bon konstant. Die IC- und Scheme-Werte des Mixes sind bewusst nur editierbare Illustrationen, keine aus den komplexen Quelltabellen abgeleiteten Durchschnittssätze. Auch Demo-Angebotssätze sind erfunden und erst nach explizitem Klick sichtbar. Individuelle Nexi-Vertragsbedingungen, Preislisten-Zuschläge und Wettbewerbsangebote müssen manuell überprüft werden. In der PDF-Druckansicht sind die Kosten, der Szenariovergleich und Einschränkungen enthalten. Dieser Prototyp ersetzt keine fachliche Tariffreigabe.
