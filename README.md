@@ -1,13 +1,13 @@
-# Nexi Payment Advisor · Prototyp
+# Nexi Payment Advisor · UX-Prototyp v3.1
 
-Statische Web-App: `index.html` im Browser öffnen. Keine Installation, keine Übermittlung der Eingaben.
+`index.html` im Browser öffnen. Die Daten bleiben im Browser.
 
-## Ablauf
-1. Kartenumsatz, Transaktionen und Betrachtungsdauer eingeben.
-2. Angebote frei hinzufügen; Anbieter und Preismodell je Angebot unabhängig wählen.
-3. Blended: gesamten Basis-Satz erfassen. IC++: Acquirer Markup erfassen und gemeinsamen Kartenmix bestätigen.
-4. Terminalmiete, Gebühren, Mindestgebühr, Einrichtung und zusätzliche Kosten je Angebot erfassen.
-5. Kostenranking, grobe Umsatz-Szenarien und Kostenblöcke prüfen; über Browserdruck als PDF speichern.
+## Drei Wege
+- Zwei Nexi-Angebote vergleichen (Standardansicht)
+- Drei Nexi-Angebote vergleichen
+- Nexi-Offerte mit Wettbewerbs-Offerte vergleichen
 
-## Methodik und Grenzen
-Jahreskosten = Acquiring (Umsatz × Basissatz plus IC/Scheme bei IC++; Transaktionen × Fixgebühr) + Aufpreis auf monatliche Acquiring-Mindestgebühr + zusätzliche variable Zuschläge + Terminalmiete + sonstige laufende Kosten + einmalige Einrichtung geteilt durch Betrachtungsjahre. Alle Angebote nutzen denselben Kartenmix. Die Umsatz-Szenarien nutzen acht Stichproben und halten den Bon konstant. Die IC- und Scheme-Werte des Mixes sind bewusst nur editierbare Illustrationen, keine aus den komplexen Quelltabellen abgeleiteten Durchschnittssätze. Auch Demo-Angebotssätze sind erfunden und erst nach explizitem Klick sichtbar. Individuelle Nexi-Vertragsbedingungen, Preislisten-Zuschläge und Wettbewerbsangebote müssen manuell überprüft werden. In der PDF-Druckansicht sind die Kosten, der Szenariovergleich und Einschränkungen enthalten. Dieser Prototyp ersetzt keine fachliche Tariffreigabe.
+Die Preismodelle Blended und IC++ sind auf jeder Karte unabhängig wählbar. Initial sind nur Prozentsatz und Terminalmiete sichtbar. Weitere Kosten, Kartenmix und die detaillierte Auswertung lassen sich bei Bedarf aufklappen. Der PDF-Druck enthält die Ergebnisdetails und Berechnungsbasis.
+
+## Berechnung
+Acquiring = Umsatz × Satz, bei IC++ zuzüglich gewichteter Interchange und Netzwerkgebühren; plus Transaktionen × Fixgebühr. Dazu kommen eventuell Mindestgebühr-Aufpreis, prozentuale Zuschläge, Terminalmiete, weitere laufende Kosten und anteilige Einmalkosten. Umsatz-Szenarien beruhen auf acht groben Stichproben. Gemeinsamer Kartenmix für alle IC++-Optionen. Die Kartenmix-Annahmen und die erst per Klick geladenen Demo-Sätze sind illustrativ und keine verbindlichen Nexi-Tarife. Angebots- und Vertragskonditionen fachlich validieren.
