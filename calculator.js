@@ -34,7 +34,7 @@ function renderOffers(){
 }
 function context(){const c={volume:num($('volume').value),tx:num($('tx').value),years:num($('years').value)};c.share=kinds.reduce((a,k)=>a+(num(k.share)||0),0);c.mixValid=Math.abs(c.share-100)<.001&&kinds.every(k=>num(k.share)!==null&&(+k.share===0||k.id==='twint'||num(k.ic)!==null&&num(k.scheme)!==null));return c;}
 function cost(o,c,v=c.volume){const tx=v*c.tx/c.volume,blocks=Object.fromEntries(kinds.map(k=>[k.id,{share:(+k.share)/100,volume:v*(+k.share)/100,tx:txMixEnabled?(+k.tx)*v/c.volume:tx*(+k.share)/100}]));let acquiring=0,interchange=0,scheme=0,twint=0;for(const k of kinds){const b=blocks[k.id];if(k.id==='twint'){twint=b.volume*(+o.rates.twint)/100+b.tx*(+o.fixed.twint);continue;}const base=o.model==='split'?+o.rates[k.id]:+o.rate;acquiring+=b.volume*base/100+b.tx*(+o.fixed[k.id]);if(o.model==='icpp'){interchange+=b.volume*(+k.ic)/100;scheme+=b.volume*(+k.scheme)/100;}}const min=Math.max(0,+o.minimum*12-acquiring-interchange-scheme),extra=v*(+o.surcharge)/100,terminal=12*(+o.rent)*(+o.terminals),other=12*(+o.monthly)+(+o.annual),setup=(+o.setup)/c.years;return {acquiring,interchange,scheme,twint,min,extra,terminal,other,setup,total:acquiring+interchange+scheme+twint+min+extra+terminal+other+setup};}
-function validOffer(o){const shared=['rent','terminals','monthly','annual','setup','minimum','surcharge'];if(!o.name.trim()||shared.some(k=>num(o[k])===null)||!Number.isInteger(+o.terminals))return false;return kinds.every(k=>{const share=+k.share;if(share<=0)return !txMixEnabled||+k.tx<=0||num(o.fixed[k.id])!==null;const rate=o.model==='split'||k.id==='twint'?o.rates[k.id]:o.rate;return num(rate)!==null&&num(o.fixed[k.id])!==null;});}
+function validOffer(o){const shared=['rent','terminals','monthly','annual','setup','minimum','surcharge'];if(!o.name.trim()||shared.some(k=>num(o[k])===null)||!Number.isInteger(+o.terminals))return false;return kinds.every(k=>{const share=+k.share;if(share<=0&&(!txMixEnabled||+k.tx<=0))return true;const rate=o.model==='split'||k.id==='twint'?o.rates[k.id]:o.rate;return num(rate)!==null&&num(o.fixed[k.id])!==null;});}
 function calculate(){
   const c=context(),current=offers(),usesIc=current.some(o=>o.model==='icpp');
   $('mix-status').textContent=T('activeShare',{share:fmt(c.share,1)});
@@ -64,8 +64,15 @@ function calculate(){
   $('limits').textContent=T('breakdownDate',{date:new Intl.DateTimeFormat(I.locale).format(new Date()),demo:demo?T('exampleCaveat'):'',tx:T(txMixEnabled?'transactionActual':'transactionAssumed'),mix:T(mixConfirmed?'confirmed':'unconfirmed'),ic:usesIc?T('icNote'):'',limits:T('limitations')});
 }
 function switchMode(next){mode=next;document.querySelectorAll('[data-mode]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.mode===mode)));$('mode-help').textContent=T(mode==='internal2'?'modeHelp2':mode==='internal3'?'modeHelp3':'modeHelpCompetitor');renderOffers();calculate();}
-function refreshLanguage(){I.setLang($('language').value);I.staticText();$('demo').textContent=T(demo?'demoLoaded':'demoButton');$('mode-help').textContent=T(mode==='internal2'?'modeHelp2':mode==='internal3'?'modeHelp3':'modeHelpCompetitor');renderMix();renderOffers();calculate();}
-$('language').onchange=refreshLanguage;
+function refreshLanguage(code){I.setLang(code);I.staticText();$('language-code').textContent=I.lang.toUpperCase();$('language-heading').textContent=T('languageHeading');$('language-trigger').setAttribute('aria-label',T('languageTrigger'));document.querySelector('.language-close').setAttribute('aria-label',T('languageClose'));document.querySelectorAll('[data-language]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.language===I.lang)));$('demo').textContent=T(demo?'demoLoaded':'demoButton');$('mode-help').textContent=T(mode==='internal2'?'modeHelp2':mode==='internal3'?'modeHelp3':'modeHelpCompetitor');renderMix();renderOffers();calculate();}
+const languageTrigger=$('language-trigger'),languageMenu=$('language-menu'),languageClose=document.querySelector('.language-close');
+function closeLanguage(restoreFocus=false){languageMenu.hidden=true;languageTrigger.setAttribute('aria-expanded','false');document.body.classList.remove('language-open');languageMenu.setAttribute('aria-modal','false');if(restoreFocus)languageTrigger.focus();}
+function openLanguage(){languageMenu.hidden=false;languageTrigger.setAttribute('aria-expanded','true');document.body.classList.add('language-open');languageMenu.setAttribute('aria-modal',String(matchMedia('(max-width: 600px)').matches));languageMenu.querySelector('[aria-pressed="true"]').focus();}
+languageTrigger.onclick=()=>languageMenu.hidden?openLanguage():closeLanguage(true);
+languageClose.onclick=()=>closeLanguage(true);
+languageMenu.querySelectorAll('[data-language]').forEach(button=>button.onclick=()=>{refreshLanguage(button.dataset.language);closeLanguage(true);});
+document.addEventListener('pointerdown',e=>{if(!languageMenu.hidden&&!e.target.closest('.language-control'))closeLanguage();});
+document.addEventListener('keydown',e=>{if(languageMenu.hidden)return;if(e.key==='Escape'){e.preventDefault();closeLanguage(true);}if(e.key==='Tab'&&matchMedia('(max-width: 600px)').matches){const focusable=[languageClose,...languageMenu.querySelectorAll('[data-language]')];const first=focusable[0],last=focusable[focusable.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}});
 document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>switchMode(b.dataset.mode));
 $('demo').onclick=()=>{for(const [o,base,rent] of [[nexi[0],1.2,25],[nexi[1],1.45,0],[competitor,1.35,28]]){o.rates.mcDebit=String(base);o.rates.visaDebit=String(base);o.rates.credit=String(base+0.2);o.rates.twint='1.25';o.rent=String(rent);}nexi[2].rate='0.45';nexi[2].rates.twint='1.25';nexi[2].rent='25';demo=true;renderOffers();calculate();$('demo').textContent=T('demoLoaded');};
 $('print').onclick=()=>{document.querySelectorAll('.result-details').forEach(d=>d.open=true);window.print();};
@@ -73,5 +80,5 @@ $('print').onclick=()=>{document.querySelectorAll('.result-details').forEach(d=>
 $('years').oninput=calculate;
 $('mix-confirm').onchange=e=>{mixConfirmed=e.target.checked;calculate();};
 $('tx-mix-toggle').onchange=e=>{txMixEnabled=e.target.checked;$('tx-mix').hidden=!txMixEnabled;calculate();};
-I.setLang('de');I.staticText();renderMix();switchMode('internal2');
+I.setLang('de');I.staticText();renderMix();switchMode('internal2');refreshLanguage('de');
 })();

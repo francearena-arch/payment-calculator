@@ -1,6 +1,9 @@
 window.PaymentI18n=(()=>{
   const locale={de:'de-CH',fr:'fr-CH',en:'en-CH',it:'it-CH'};
   const D={
+    languageHeading:['Sprache','Langue','Language','Lingua'],
+    languageTrigger:['Sprache ändern','Changer de langue','Change language','Cambia lingua'],
+    languageClose:['Schliessen','Fermer','Close','Chiudi'],
     product:['Payment Vergleichsrechner','Comparateur de paiements','Payment comparison calculator','Calcolatore comparativo dei pagamenti'],
     eyebrow:['NEXI PAYMENT VERGLEICHSRECHNER','COMPARATEUR DE PAIEMENTS NEXI','NEXI PAYMENT COMPARISON','COMPARATORE DI PAGAMENTI NEXI'],
     headline:['Finde das passende Angebot.','Trouvez l’offre adaptée.','Find the right offer.','Trova l’offerta giusta.'],
