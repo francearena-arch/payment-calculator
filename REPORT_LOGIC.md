@@ -1,4 +1,4 @@
-# Reporting-Logik 4.1
+# Reporting-Logik 4.2
 
 ## Welche Daten zählen?
 Nur administrativ freigegebene echte Wettbewerbsofferten gehen in Kennzahlen und Trends ein. Zu prüfende Offerten bleiben separat sichtbar. Eine Bestätigung durch den Nutzer und die Freigabe sind Qualitätskontrollen, kein unabhängiger Echtheitsnachweis. Datum ist das Offertdatum. Branche, Sales Channel, Einsatzzweck und Umsatzband dienen der Einordnung; keine Kundennamen, Anhänge, exakten Umsätze oder exakten Transaktionszahlen werden gespeichert. Freitext darf nur Propositionen oder Wettbewerber benennen.
@@ -30,7 +30,19 @@ Kostenvorteil = (Wettbewerbskosten − Nexi-Kosten) / Wettbewerbskosten. Positiv
 ## Demo und PDF
 Demo-Daten sind deterministische Fiktion für alle auswählbaren Wettbewerber inklusive Other/DemoPay. Sie sind keine Marktbeobachtung und werden nie in die Datenbank geschrieben. Sie ersetzen die echte Ansicht nur lokal, bis zurückgeschaltet wird. Jede PDF-Seite trägt eine Demo-Kennzeichnung. Namen/Logos kennzeichnen die fiktiven Anbieterbeispiele, keine tatsächlich angebotenen Preise.
 
-PDF enthält Summary, Detailanalyse und höchstens sechs Offerten aus der aktuell gewählten Bibliotheksseite. Die vollständige Bibliothek bleibt über Filter und Seitenwechsel erreichbar. Die Auswertung lädt höchstens 5’000 Datensätze; bei Erreichen dieses Limits wird angezeigt, dass der Zeitraum enger gewählt werden muss.
+PDF enthält Summary, Branchenübersicht, Kostenranking, die gewählte Trend-Zahlungsart, Preismatrix, Detailanalyse und höchstens sechs Offerten aus der aktuell gewählten Bibliotheksseite. Die vollständige Bibliothek bleibt über Filter und Seitenwechsel erreichbar. Die Auswertung lädt höchstens 5’000 Datensätze; bei Erreichen dieses Limits wird angezeigt, dass der Zeitraum enger gewählt werden muss.
 
 ## Grenzen
 Erfasste Offerten sind eine selektive Stichprobe, keine repräsentative Marktstatistik. Vergleichsgruppen reduzieren Unterschiede, gleichen aber z. B. Vertragsdauer, Herkunftsmix, Kartentypen und individuelle Nebenbedingungen nicht vollständig aus. Bestehende Offerten ohne Branche werden als „nicht erfasst“ geführt. Monatliche PDF-E-Mails und revisionssichere Berichtssnapshots sind noch nicht implementiert.
+
+
+## Management-Auswertung und Branchenseite 4.2
+Das Summary erzeugt Beobachtungen und Prüfaufträge aus den tatsächlich verfügbaren Daten. Es verwendet keine generierten Marktbehauptungen. Anbieteränderungen beziehen sich explizit auf die angezeigte Detailgruppe. Ohne zwei Monate mit je mindestens fünf Offerten wird keine Veränderung behauptet.
+
+Die Branchenseite folgt den oberen Filtern. Neukundengewinnung und Retention sind separate Tabellen. Angezeigt werden freigegebene Offerten, auswertbare Paarvergleiche, Anteil Nexi günstiger, medianer Kostenvorteil und bei Retention Haltequote samt Nenner und offenen Fällen. Anzahl Detailgruppen weist auf die Zusammensetzung nach Channel, Umsatzband und Modell hin. Die Übersicht ist beschreibend, keine bereinigte Branchenrangliste. Ab fünf Paarvergleichen verschwindet lediglich der Hinweis auf eine kleine Stichprobe; Repräsentativität wird nicht behauptet.
+
+Für die Preisentwicklung gibt es ein Diagramm pro Anbieter, gleiche Skala und gleiche Monate. Die gewählte Zahlungsart erscheint auch im PDF. Bei IC++ zeigt die Kartenserie nur die Marge; TWINT separat. Die Preismatrix färbt innerhalb jeder Spalte relativ zum kleinsten/grössten beobachteten Satz; daraus ergibt sich kein Gesamtkostenranking. CHF-Fixbeträge sind separat beschriftet.
+
+Für das Gesamtkostenranking kann der Administrator eine konkrete gespeicherte Nexi-Offerte aus der letzten Monatsperiode der gewählten Vergleichsgruppe auswählen. Die Konditionen sind vollständig ausgewiesen. Die Referenz wird mit dem gleichen versionierten Merchant-Profil gerechnet wie die Wettbewerber. Vergleichsgruppe oder Filter ändern setzt die Auswahl zurück, damit nicht unbemerkt eine andere Offerte als Referenz verwendet wird. Im Demo-Modus ist zunächst eine fiktive Offerte ausgewählt; in der echten Ansicht ist keine vorausgewählt.
+
+Abstand im Ranking = Wettbewerbskosten minus feste Nexi-Referenzkosten. Negativ bedeutet Wettbewerber günstiger, positiv Wettbewerber teurer. Prozentbasis ist die feste Nexi-Referenz. Diese Kennzahl unterscheidet sich ausdrücklich vom fallbezogenen Kostenvorteil im Summary, dessen Prozentbasis der jeweilige Wettbewerber ist. Eine Referenz mit Kosten Null hat keinen definierten relativen Abstand. Unterschiedliche Preismodelle werden mit ihren jeweiligen Kostenbestandteilen gerechnet und klar beschriftet; IC++ enthält weiterhin illustrative Gebührenannahmen.
