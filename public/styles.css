@@ -44,3 +44,64 @@
 #account input,#submission input:not([type=checkbox]),#competitor-context input,.report-filters input,#invite-form input{width:100%;padding:13px;border:1px solid #d8d9ec;border-radius:12px;font:inherit;min-height:48px;background:#fff;color:#252546}.report-filters label{display:flex;flex-direction:column;gap:8px}.top-inner #product-name{white-space:normal;overflow:visible;text-overflow:clip}.table-wrap small{display:block;margin-top:6px;font-weight:400}.brand img{object-fit:contain}#case-context .fields{grid-template-columns:1fr 1fr}#app-nav button:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #8583f6;outline-offset:3px}
 @media print{body.printing-report{background:#fff!important;font-size:12px}body.printing-report #reporting-view>.panel>.section-head{display:none!important}body.printing-report .report-title{padding:18px;margin:0 0 18px}body.printing-report .report-kpis{margin:16px 0;gap:12px}body.printing-report .report-kpis>div{padding:14px}body.printing-report .report-kpis strong{font-size:25px}body.printing-report .report-kpis span{font-size:10px}body.printing-report .benchmark-grid{margin:16px 0;gap:12px}body.printing-report .benchmark{padding:16px}body.printing-report .benchmark h3{font-size:17px;margin:12px 0 6px}body.printing-report .benchmark p{font-size:11px}body.printing-report h3{font-size:16px;margin:18px 0 10px}body.printing-report .subtle{font-size:10px}body.printing-report .footnote{font-size:8px}body.printing-report .panel{background:white!important}body.printing-report .brand img{max-height:30px}}
 .brand:has(img[alt="SwiPay"]){background:#142339;border-radius:8px;padding:8px;height:54px}.brand:has(img[alt="SwiPay"]) img{max-width:140px}
+
+/* Accessible, field-specific submission validation */
+[aria-invalid="true"]{border-color:#b42318!important;outline:2px solid #b42318!important;outline-offset:2px}
+.field-error{display:block;color:#b42318;font-size:.82rem;font-weight:500;line-height:1.4;margin-top:7px;flex-basis:100%}
+.confirm-row:has([aria-invalid="true"]),.mix-confirm:has([aria-invalid="true"]){background:#fff4f2;border-radius:10px;padding:12px}
+#submission-status[role="alert"]{color:#b42318}
+.mix-confirm{margin:16px 0;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+/* RC3: consistent app hierarchy, legible controls and quiet surfaces */
+:root{--ink:#24264a;--muted:#626981;--accent:#3638a6;--line:#e1e4ef;--danger:#b42318;color:var(--ink)}
+button{transition:background .15s,border-color .15s,box-shadow .15s}button:not(:disabled):hover{filter:brightness(.97)}
+.panel{box-shadow:0 5px 22px #20234408}.subtle,.helper,.model-explain,.mix-preview p{color:var(--muted)}
+.top-inner{min-height:76px;height:auto;padding-top:14px;padding-bottom:14px}.pcc-mark{border-radius:10px;font-size:15px;padding:10px}
+#account:has(.account-row){background:transparent;box-shadow:none;border:0;padding:12px 22px;margin:8px auto 0}.account-row{align-items:center;font-size:13px;color:var(--muted)}
+#account:not(:has(.account-row)){max-width:540px;margin-top:48px;padding:32px}#account .fields{grid-template-columns:1fr;gap:20px}
+#account label input:not([type=checkbox]),#competitor-context label input,select{margin-top:8px}
+#account p{color:var(--muted);line-height:1.5}#account #forgot,#account #mfa-logout{border:0;background:transparent;padding:10px 0;margin-top:8px}
+#app-nav{gap:6px;margin:2px auto 0;padding-bottom:12px;border-bottom:1px solid var(--line)}
+#app-nav button{background:transparent;border-color:transparent;color:var(--muted);padding:10px 14px;font-size:13px}
+#app-nav button[aria-current=page]{background:#ececff;color:var(--accent);border-color:#dcdcf8}
+#account #logout{background:white;padding:8px 14px;font-size:12px}
+.intro{padding-top:30px;padding-bottom:28px;max-width:100%}.intro h1{font-size:clamp(28px,4.2vw,44px);letter-spacing:-.04em}.intro p{max-width:750px;font-size:16px}.eyebrow{display:none}
+.context-hint{margin:0 0 14px;color:var(--muted);font-size:13px}#case-context{padding:22px 30px;background:#fafaff}
+.required-star{color:var(--accent);font-weight:800}
+.control{min-height:48px}.control input{min-height:48px;font-size:16px}.plain{min-height:48px}
+.confirm-row,.mix-confirm{display:grid;grid-template-columns:20px minmax(0,1fr);align-items:start;gap:10px;line-height:1.5;font-size:13px}
+.confirm-row input,.mix-confirm input{margin:1px 0 0;width:19px;height:19px;min-height:0;accent-color:var(--accent)}
+.confirm-row .field-error,.mix-confirm .field-error{grid-column:2}
+.mix-preview-head{line-height:1.5}.mix-preview-head strong span{display:inline-block;margin-top:4px}
+.mix-preview{background:#fafaff}.mix-confirm{padding:12px 0}.mix-warning{color:#67552a}
+.offer-heading{color:var(--muted)}.offer-total{color:var(--muted)}.offer-total strong{font-size:19px}
+.model-toggle button{min-height:44px}.mode-picker button{min-height:92px}.mode-picker span{color:var(--muted)}
+#submission{border-color:#dcdcf5;background:#fafaff}#submission h3{font-size:20px;margin:0 0 10px;letter-spacing:-.02em}#submission>.subtle{max-width:680px;line-height:1.6;margin-bottom:20px}
+#submission .action-row{justify-content:flex-start;gap:10px}.action-row button{flex:none}
+#submit-quote,#auth-form button[type=submit],#mfa-form button,#invite-form button,#report-print,#print{background:var(--accent)!important;color:white!important;border:1px solid var(--accent)!important;box-shadow:0 3px 9px #3638a61a}
+#new-case,#report-refresh{background:white!important;box-shadow:none}
+#submission-status:empty{display:none}#submission-status{padding:12px 14px;background:#fff;border:1px solid var(--line);border-radius:10px;line-height:1.5;font-size:13px}
+#submission-status.success{background:#edf8f2;border-color:#b8dbc9}
+#reporting-view,#users-view,#cases-view{padding-top:24px}.report-kpis{gap:12px}.report-kpis>div{background:#fafaff}.report-filters{padding:18px;background:#f8f9fd;border-radius:14px;gap:16px}
+.report-filters select{margin-top:0}.report-filters label{color:var(--muted)}.case-row{line-height:1.5}.case-row summary{cursor:pointer;color:var(--accent);font-size:13px;padding:12px 0}
+.case-row [data-status=approved]{background:var(--accent)!important;color:white!important}.case-row [data-delete],.case-row [data-status=rejected],#users-view [data-delete]{color:var(--danger);background:white}
+.table-wrap td,.table-wrap th{line-height:1.45}#report-model option{font:inherit}
+@media(min-width:751px){.four-offers{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){
+ .top-inner{min-height:70px;gap:9px}.top-inner #product-name{font-size:13px;max-width:none}.language-trigger{height:44px}
+ #account:has(.account-row){padding:10px 16px}#account:not(:has(.account-row)){width:calc(100% - 32px);padding:24px;margin-top:28px}
+ #app-nav{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin}#app-nav button{flex:none;white-space:nowrap;padding:10px 12px}
+ .intro{padding-top:24px}.intro h1{font-size:30px;line-height:1.13}.intro p{font-size:15px}
+ #case-context{padding:20px}#case-context .fields{grid-template-columns:1fr;gap:16px}
+ .section-head{gap:14px}.section-head>div{gap:10px}.section-head h2{font-size:20px;line-height:1.2}
+ .section-head .text-button{margin-left:42px}.results .section-head #print{margin-left:0}
+ #submission .action-row{flex-direction:column}#submission .action-row button{width:100%}
+ .offer{padding:19px}.offer-total strong{font-size:21px}.split-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.split-grid label{font-size:12px;line-height:1.4}.split-grid .control input{padding:12px 10px}.split-grid .control b{margin-right:10px}
+ .mix-preview-head>span{white-space:normal}.mix-row{grid-template-columns:repeat(2,minmax(0,1fr))}.mix-row>label:first-of-type{grid-column:1/-1}.mix-row .control input{font-size:16px}.mix-row label{font-size:12px}
+ .report-filters{grid-template-columns:1fr}.report-kpis{grid-template-columns:1fr}.benchmark-grid{grid-template-columns:1fr}
+ #reporting-view .section-head>div{flex-wrap:wrap}#reporting-view .section-head button{padding:10px 12px;font-size:13px}
+}
+@media(max-width:359px){.split-grid{grid-template-columns:1fr}.intro h1{font-size:27px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+@media print{.intro{padding-top:12px}.eyebrow{display:none}#submission{display:none!important}#account,#app-nav{display:none!important}.intro h1{font-size:22px}.report-filters{display:none!important}}
+
+@media print{html,:root{background:white!important}}
