@@ -11,6 +11,7 @@ create table public.pcc_cases (
  id uuid primary key default gen_random_uuid(),
  owner_id uuid references public.pcc_profiles(user_id) on delete set null,
  channel text not null check(channel in ('Remote Sales','Field Sales','Key Account')),
+ industry text check(industry in ('Gastro','Hospitality','Beauty & Cosmetics','Health Services','Specialty Retail','Other','Unknown')),
  purpose text not null check(purpose in ('acquisition','retention')),
  quote_date date not null,
  turnover_band text not null,

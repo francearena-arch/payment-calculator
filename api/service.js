@@ -26,7 +26,7 @@ export const makeHandler=(factory=createClient)=>async function handler(req,res)
   const {data:existing}=await db.from('pcc_cases').select('id').eq('id',row.id).eq('owner_id',p.user_id).maybeSingle();if(existing)return res.json(existing);
   const out=await checked(db.from('pcc_cases').insert(row).select('id').single());return res.json(out);
  }
- if(action==='cases')return res.json({cases:await checked(db.from('pcc_cases').select('id,competitor,quote_date,channel,purpose,status,outcome,offered_option,closed_date,payload').eq('owner_id',p.user_id).order('created_at',{ascending:false}).limit(500))});
+ if(action==='cases')return res.json({cases:await checked(db.from('pcc_cases').select('id,competitor,quote_date,channel,purpose,industry,turnover_band,status,outcome,offered_option,closed_date,payload').eq('owner_id',p.user_id).order('created_at',{ascending:false}).limit(500))});
  if(action==='outcome'){
   if(!['open','retained','lost'].includes(b.outcome))return res.status(400).json({error:'Invalid outcome'});
   const old=await checked(db.from('pcc_cases').select('*').eq('id',b.id).eq('owner_id',p.user_id).single());
@@ -34,7 +34,14 @@ export const makeHandler=(factory=createClient)=>async function handler(req,res)
   if(!Number.isInteger(b.offered_option)||old.payload.offers[b.offered_option]?.provider!=='Nexi')return res.status(400).json({error:'Select actual Nexi proposition'});
   await checked(db.from('pcc_cases').update({outcome:b.outcome,offered_option:b.offered_option,closed_date:b.outcome==='open'?null:new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Zurich'}).format(new Date())}).eq('id',b.id).eq('owner_id',p.user_id));await audit(b.id);return res.json({ok:true});
  }
- if(action==='report')return res.json({cases:await checked(db.from('pcc_cases').select('*').order('quote_date',{ascending:false}).limit(5000)),limit:5000});
+ if(action==='report'){
+  const cases=[];
+  for(let start=0;start<5000;start+=1000){
+   const page=await checked(db.from('pcc_cases').select('*').order('quote_date',{ascending:false}).order('id',{ascending:false}).range(start,start+999));
+   cases.push(...page);if(page.length<1000)break;
+  }
+  return res.json({cases,limit:5000});
+ }
  if(action==='review'){
   if(!['approved','rejected'].includes(b.status))return res.status(400).json({error:'Invalid status'});
   await checked(db.from('pcc_cases').update({status:b.status,reviewed_by:p.user_id,reviewed_at:new Date().toISOString()}).eq('id',b.id));await audit(b.id);return res.json({ok:true});

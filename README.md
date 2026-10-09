@@ -1,6 +1,9 @@
 # Proposition & Competition Comparator
-## 4.0.0-rc.1 — integration release candidate
+## 4.1.0-rc.1 — reporting release candidate
 Built from the supplied v3.5.0 pilot. This is NOT a production sign-off: actual Supabase/Vercel configuration, invitations, SMTP, RLS and user access must be tested on the configured project before real use.
+
+## Update existing installation
+Read `START_HIER.md` first. Run `supabase/02_reporting_upgrade.sql` before deploying. Do not rerun the initial setup on an existing project. Reporting methodology: `REPORT_LOGIC.md`.
 
 ## Included
 - Existing DE/FR/EN/IT calculator and merchant print-to-PDF, neutral application branding.

@@ -1,7 +1,7 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import {validateSubmission,referenceCost,median,band} from '../lib/domain.js';
 const offer=(provider='Nexi')=>({name:'Standard',provider,model:'split',rates:{mcDebit:1.2,visaDebit:1.2,credit:1.4,twint:1.25,other:0},fixed:{mcDebit:0,visaDebit:0,credit:0,twint:0,other:0},rate:0,rent:25,terminals:1,monthly:0,annual:0,setup:0,minimum:0,surcharge:0});
-const submission=()=>({channel:'Remote Sales',purpose:'retention',quote_date:'2026-10-01',turnover_band:band(500000),competitor:'Worldline',real_quote:true,demo:false,mix_confirmed:true,mix:{mcDebit:30,visaDebit:30,credit:25,twint:15,other:0},assumptions:{mcDebit:{ic:.2,scheme:.12},visaDebit:{ic:.2,scheme:.12},credit:{ic:.4,scheme:.15},other:{ic:1.5,scheme:.7}},offers:[offer(),offer('competitor')]});
+const submission=()=>({industry:'Gastro',channel:'Remote Sales',purpose:'retention',quote_date:'2026-10-01',turnover_band:band(500000),competitor:'Worldline',real_quote:true,demo:false,mix_confirmed:true,mix:{mcDebit:30,visaDebit:30,credit:25,twint:15,other:0},assumptions:{mcDebit:{ic:.2,scheme:.12},visaDebit:{ic:.2,scheme:.12},credit:{ic:.4,scheme:.15},other:{ic:1.5,scheme:.7}},offers:[offer(),offer('competitor')]});
 test('Split Blend matches existing pilot fixture including TWINT and terminal rent',()=>assert.equal(referenceCost(offer()),6587.5));
 test('IC++ excludes TWINT from card fees and matches pilot fixture',()=>{const o=offer();o.model='icpp';o.rate=.45;assert.equal(referenceCost(o),4797.5)});
 test('fixed charges, multiple terminals, card monthly minimum and setup included',()=>{const o=offer();o.fixed.mcDebit=.05;o.terminals=2;o.setup=100;o.minimum=600;assert.equal(referenceCost(o),8837.5)});
