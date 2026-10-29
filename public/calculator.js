@@ -12,12 +12,11 @@ const kinds=[
   {id:'other',tx:'',share:'0',ic:'1.50',scheme:'0.70'}
 ];
 const groups=kinds.map(k=>k.id);
-let mode='internal2',demo=false,mixConfirmed=false,txMixEnabled=false;
+const mode='competitor';let demo=false,mixConfirmed=false,txMixEnabled=false;
 const make=(name,provider='Nexi',model='split')=>({name,nameEdited:false,provider,model,rates:Object.fromEntries(groups.map(k=>[k,''])),fixed:Object.fromEntries(groups.map(k=>[k,'0'])),rate:'',rent:'0',terminals:'1',monthly:'0',annual:'0',setup:'0',minimum:'0',surcharge:'0'});
-const nexi=[make('Nexi mit Terminalmiete'),make('Nexi ohne Terminalmiete'),make('Nexi Verbandsangebot','Nexi','icpp')],competitor=make('Angebot des Wettbewerbers','Wettbewerber');
-let competitorCount=1;
-const offers=()=>mode==='competitor'?[...nexi.slice(0,competitorCount),competitor]:mode==='internal3'?nexi:nexi.slice(0,2);
-const name=o=>o.nameEdited?o.name:T(({ 'Nexi mit Terminalmiete':'defaultName1','Nexi ohne Terminalmiete':'defaultName2','Nexi Verbandsangebot':'defaultName3','Angebot des Wettbewerbers':'defaultName4'})[o.name]||o.name);
+const nexi=[make('Nexi Angebot')],competitor=make('Angebot des Wettbewerbers','Wettbewerber');
+const offers=()=>[nexi[0],competitor];
+const name=o=>o.nameEdited?o.name:T(({ 'Nexi Angebot':'defaultName1','Nexi ohne Terminalmiete':'defaultName2','Nexi Verbandsangebot':'defaultName3','Angebot des Wettbewerbers':'defaultName4'})[o.name]||o.name);
 const field=(label,key,value,unit,step='0.01')=>`<label>${esc(label)}<span class="control"><input data-key="${key}" type="number" min="0" step="${step}" inputmode="decimal" value="${esc(value)}" placeholder="–"><b>${esc(unit)}</b></span></label>`;
 function renderMix(){
   $('mix').innerHTML=kinds.map((k,i)=>`<div class="mix-row"><strong>${esc(T(k.id))}</strong>${field(T('Umsatzanteil'),`share:${i}`,k.share,'%','0.1')}${k.id==='twint'?`<span class="mix-note">${T('noInterchange')}</span>`:field(T('Interchange'),`ic:${i}`,k.ic,'%','0.001')+field(T('Netzwerkgebühr'),`scheme:${i}`,k.scheme,'%','0.001')}</div>`).join('');
@@ -29,7 +28,7 @@ function splitFields(o){return `<div class="split-prices"><p class="subtle">${T(
 function icFields(o){return `<div class="fields card-primary">${field(T('markupLabel'),'rate',o.rate,'%','0.001')}${field(T('twintRate'),'rate:twint',o.rates.twint,'%','0.001')}</div><p class="model-explain">${T('icHelp')}</p><details class="secondary-fees"><summary>${T('fixedSummary')}</summary><div class="fields">${kinds.map(k=>field(T('fixedLabel',{name:T(k.id)}),`fixed:${k.id}`,o.fixed[k.id],'CHF')).join('')}</div></details>`;}
 function card(o,i){const rival=o===competitor;return `<article class="offer ${rival?'competitor':''}" data-index="${i}"><div class="offer-heading"><span class="provider-tag">${rival?T('competitor'):'NEXI'}</span><span>${T('option',{n:i+1})}</span></div><label>${T('nameLabel')}<input class="plain" data-key="name" maxlength="60" value="${esc(name(o))}"></label><div class="model-toggle" role="group" aria-label="${esc(name(o))}"><button type="button" data-model="split" aria-pressed="${o.model==='split'}">Split Blend</button><button type="button" data-model="icpp" aria-pressed="${o.model==='icpp'}">IC++</button></div>${o.model==='split'?splitFields(o):icFields(o)}<div class="rent-field">${field(T('rentLabel'),'rent',o.rent,'CHF')}</div><details class="cost-details"><summary>${T('moreCosts')} <span>${T('optional')}</span></summary><div class="fields">${field(T('terminals'),'terminals',o.terminals,T('pieces'),'1')}${field(T('months'),'monthly',o.monthly,'CHF')}${field(T('annual'),'annual',o.annual,'CHF')}${field(T('setupLabel'),'setup',o.setup,'CHF')}${field(T('surcharge'),'surcharge',o.surcharge,'%','0.001')}${field(T('minLabel'),'minimum',o.minimum,'CHF')}</div></details><div class="offer-total" id="total-${i}"></div></article>`;}
 function renderOffers(){
-  $('offers').classList.toggle('three-offers',mode==='internal3');$('offers').classList.toggle('four-offers',offers().length===4);
+  
   $('offers').innerHTML=offers().map(card).join('');
   $('offers').querySelectorAll('.offer').forEach((node,i)=>{const o=offers()[i];node.addEventListener('input',e=>{const key=e.target.dataset.key;if(!key)return;if(key.includes(':')){const [type,k]=key.split(':');o[type==='rate'?'rates':'fixed'][k]=e.target.value;}else{if(key==='name')o.nameEdited=true;o[key]=e.target.value;}calculate();});node.querySelectorAll('[data-model]').forEach(b=>b.onclick=()=>{o.model=b.dataset.model;renderOffers();calculate();});});
 }
@@ -65,8 +64,7 @@ function calculate(){
   $('print-basis').textContent=T('printBasis',{volume:chf(c.volume),tx:fmt(c.tx),years:c.years,mix,status:T(mixConfirmed?'statusYes':'statusNo')});
   $('limits').textContent=T('breakdownDate',{date:new Intl.DateTimeFormat(I.locale).format(new Date()),demo:demo?T('exampleCaveat'):'',tx:T(txMixEnabled?'transactionActual':'transactionAssumed'),mix:T(mixConfirmed?'confirmed':'unconfirmed'),ic:usesIc?T('icNote'):'',limits:T('limitations')});
 }
-function switchMode(next){mode=next;document.querySelectorAll('[data-mode]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.mode===mode)));$('mode-help').textContent=T(mode==='internal2'?'modeHelp2':mode==='internal3'?'modeHelp3':'modeHelpCompetitor');renderOffers();calculate();}
-function refreshLanguage(code){I.setLang(code);I.staticText();$('language-code').textContent=I.lang.toUpperCase();$('language-heading').textContent=T('languageHeading');$('language-trigger').setAttribute('aria-label',T('languageTrigger'));document.querySelector('.language-close').setAttribute('aria-label',T('languageClose'));document.querySelectorAll('[data-language]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.language===I.lang)));$('demo').textContent=T(demo?'demoLoaded':'demoButton');$('mode-help').textContent=T(mode==='internal2'?'modeHelp2':mode==='internal3'?'modeHelp3':'modeHelpCompetitor');renderMix();renderOffers();calculate();}
+function refreshLanguage(code){I.setLang(code);I.staticText();$('language-code').textContent=I.lang.toUpperCase();$('language-heading').textContent=T('languageHeading');$('language-trigger').setAttribute('aria-label',T('languageTrigger'));document.querySelector('.language-close').setAttribute('aria-label',T('languageClose'));document.querySelectorAll('[data-language]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.language===I.lang)));$('demo').textContent=T(demo?'demoLoaded':'demoButton');$('mode-help').textContent='';renderMix();renderOffers();calculate();}
 const languageTrigger=$('language-trigger'),languageMenu=$('language-menu'),languageClose=document.querySelector('.language-close');
 function closeLanguage(restoreFocus=false){languageMenu.hidden=true;languageTrigger.setAttribute('aria-expanded','false');document.body.classList.remove('language-open');languageMenu.setAttribute('aria-modal','false');if(restoreFocus)languageTrigger.focus();}
 function openLanguage(){languageMenu.hidden=false;languageTrigger.setAttribute('aria-expanded','true');document.body.classList.add('language-open');languageMenu.setAttribute('aria-modal',String(matchMedia('(max-width: 600px)').matches));languageMenu.querySelector('[aria-pressed="true"]').focus();}
@@ -75,20 +73,20 @@ languageClose.onclick=()=>closeLanguage(true);
 languageMenu.querySelectorAll('[data-language]').forEach(button=>button.onclick=()=>{refreshLanguage(button.dataset.language);closeLanguage(true);});
 document.addEventListener('pointerdown',e=>{if(!languageMenu.hidden&&!e.target.closest('.language-control'))closeLanguage();});
 document.addEventListener('keydown',e=>{if(languageMenu.hidden)return;if(e.key==='Escape'){e.preventDefault();closeLanguage(true);}if(e.key==='Tab'&&matchMedia('(max-width: 600px)').matches){const focusable=[languageClose,...languageMenu.querySelectorAll('[data-language]')];const first=focusable[0],last=focusable[focusable.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}});
-document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>switchMode(b.dataset.mode));
-$('demo').onclick=()=>{for(const [o,base,rent] of [[nexi[0],1.2,25],[nexi[1],1.45,0],[competitor,1.35,28]]){o.rates.mcDebit=String(base);o.rates.visaDebit=String(base);o.rates.credit=String(base+0.2);o.rates.twint='1.25';o.rent=String(rent);}nexi[2].rate='0.45';nexi[2].rates.twint='1.25';nexi[2].rent='25';demo=true;renderOffers();calculate();$('demo').textContent=T('demoLoaded');};
-$('print').onclick=()=>{document.querySelectorAll('.result-details').forEach(d=>d.open=true);window.print();};
+
+$('demo').onclick=()=>{for(const [o,base,rent] of [[nexi[0],1.2,25],[competitor,1.35,28]]){o.rates.mcDebit=String(base);o.rates.visaDebit=String(base);o.rates.credit=String(base+0.2);o.rates.twint='1.25';o.rent=String(rent);}demo=true;renderOffers();calculate();$('demo').textContent=T('demoLoaded');};
+
 ['volume','tx'].forEach(id=>$(id).addEventListener('input',e=>{const input=e.target,before=input.value.slice(0,input.selectionStart).replace(/\D/g,'').length,digits=input.value.replace(/\D/g,'');input.value=digits.replace(/\B(?=(\d{3})+(?!\d))/g,'’');let pos=0,seen=0;while(pos<input.value.length&&seen<before){if(/\d/.test(input.value[pos]))seen++;pos++;}input.setSelectionRange(pos,pos);calculate();}));
 $('years').oninput=calculate;
 $('mix-confirm').onchange=e=>{mixConfirmed=e.target.checked;calculate();};
 $('tx-mix-toggle').onchange=e=>{txMixEnabled=e.target.checked;$('tx-mix').hidden=!txMixEnabled;calculate();};
 window.PCCCalculator={refresh:calculate,
- setCompetitorCount(n){competitorCount=n;renderOffers();calculate();},
+ setCompetitorName(value){competitor.name=value||T('defaultName4');competitor.nameEdited=!!value;renderOffers();calculate();},
  reset(){location.reload();},
- snapshot(){const c=context();return {ready:!$('print').disabled,demo,mixConfirmed,volume:c.volume,mode,
+ snapshot(){const c=context();return {ready:!$('print').disabled,demo,mixConfirmed,volume:c.volume,tx:c.tx,years:c.years,txMixEnabled,transactions:Object.fromEntries(kinds.map(k=>[k.id,txMixEnabled?+k.tx:c.tx*(+k.share)/100])),mode,results:offers().map(o=>({name:name(o),provider:o===competitor?'competitor':'Nexi',...cost(o,c)})),
  mix:Object.fromEntries(kinds.map(k=>[k.id,+k.share])),
  assumptions:Object.fromEntries(kinds.filter(k=>k.id!=='twint').map(k=>[k.id,{ic:+k.ic,scheme:+k.scheme}])),
  offers:offers().map(o=>({...o,name:name(o),provider:o===competitor?'competitor':'Nexi',rates:Object.fromEntries(groups.map(g=>[g,o.rates[g]===''?null:+o.rates[g]])),fixed:Object.fromEntries(groups.map(g=>[g,+o.fixed[g]])),...Object.fromEntries(['rate','rent','terminals','monthly','annual','setup','minimum','surcharge'].map(k=>[k,o[k]===''?null:+o[k]]))}))};}
 };
-I.setLang('de');I.staticText();renderMix();switchMode('internal2');refreshLanguage('de');
+I.setLang('de');I.staticText();renderMix();renderOffers();refreshLanguage('de');
 })();

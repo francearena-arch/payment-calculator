@@ -1,62 +1,49 @@
-# Proposition & Competition Comparator
-## 4.2.0-rc.1 — management reporting release candidate
-Built from the supplied v3.5.0 pilot. This is NOT a production sign-off: actual Supabase/Vercel configuration, invitations, SMTP, RLS and user access must be tested on the configured project before real use.
+# Nexi Payment Calculator 5.0
 
-## Update existing installation
-Read `START_HIER.md` first. Run `supabase/02_reporting_upgrade.sql` only if the 4.1 industry migration has not yet been installed. Do not rerun the initial setup on an existing project. Reporting methodology: `REPORT_LOGIC.md`.
+Stateless browser calculator for one Nexi offer against one competitor offer. Each side independently supports Split Blend or IC++. DE/FR/EN/IT UI and PDF output are supported.
 
-## Included
-- Existing DE/FR/EN/IT calculator and merchant print-to-PDF, neutral application branding.
-- Admin TOTP MFA enrollment and verification; privileged server operations require aal2.
-- Email/password login; invitation/recovery password setup; no registration UI.
-- Required sales channel per comparison: Remote Sales, Field Sales, Key Account. Purpose: acquisition/retention.
-- Listed competitors + Other with competitor-name field. No customer fields or quote attachments.
-- One competitor against 1–3 manually named Nexi propositions. Existing internal comparisons remain local.
-- Explicit real-quote submission, checked mix and offer date required. Demo-loaded comparisons must restart before submitting. This is an attestation plus admin review, not proof of authenticity.
-- Submitted competitor and Nexi pricing, mix assumptions and turnover band stored. Exact merchant turnover and transaction count are not stored. Names must describe propositions only.
-- Admin: invitations, suspension, permanent user deletion; admin accounts protected from app deletion/suspension.
-- Admin Reporting: pending review, approved library, filters, grouped monthly observations, indicative reference costs and PDF via browser print.
-- Own retention outcome form: actual offered proposition, open/retained/lost. No merchant identifiers.
-- Nexi logo only inside reporting; competitor assets where available; fallback provider label.
+## Behaviour
 
-## Deliberately not configured yet
-- Scheduled monthly email and attachment delivery (recipient, schedule and SMTP/transactional provider outstanding).
-- Centrally managed proposition templates (names/prices not supplied).
-- Operational monitoring and independent backup/restore test.
-- Native generated downloadable PDF file: current reports use browser Print → Save as PDF.
+- No login, Supabase client, database, analytics, case history or reporting.
+- Customer name, optional Salesforce Account/Opportunity references, channel, purpose, industry, competitor and quote date are captured in memory only.
+- Customer name, channel, purpose, competitor and valid calculation are required for export. Industry, Salesforce IDs and quote date are optional.
+- PDF creation downloads a real PDF and automatically posts exactly those PDF bytes to the mail function. No separate send action or pre-send notice. A delivery error is shown without preventing download.
+- JSON export includes schema/calculator version, comparison UUID, timestamp, customer/context fields, volume, transactions, separate transaction mix, assumptions, raw offer values and full annual result breakdowns. Unchanged exports share the timestamp/ID. Map this schema to the existing Salesforce importer; actual Salesforce acceptance has not been tested here.
+- Reset clears the page. No localStorage, sessionStorage or IndexedDB is used. Back-forward cache restoration triggers reset.
+- Unknown inactive rates remain null in JSON, not zero. PDF denotes these with a dash. Default IC and mix values remain illustrative and are clearly labelled.
 
-## Installation — step by step
-1. Supabase `payment-calculator` → SQL Editor → New query. Paste `supabase/01_setup.sql` and run ONCE. Confirm no error. The script creates only `pcc_*` tables; it does not modify Bodyplan. Authenticated and anonymous clients have no direct table permissions; server APIs authorize every request.
-2. Keep public signup and anonymous sign-in disabled; email provider and email confirmation enabled.
-3. Upload the contents of this release to the GitHub repository root. Do not upload node_modules, dist, .env or secrets. Keep package-lock.json.
-4. Import repository into Vercel. Framework preset Other; build `npm run build`, output `dist`, install `npm ci`. APIs deploy from root `api/`.
-5. Vercel environment variables: SUPABASE_URL (project URL), SUPABASE_SECRET_KEY (Supabase server secret OR legacy service_role key, ONLY here), APP_URL (exact HTTPS production origin, no trailing slash). Redeploy after changes. See `.env.example`; it contains no secret.
-6. Supabase Authentication → URL Configuration: Site URL = APP_URL. Add APP_URL + `/` and APP_URL + `/?flow=recovery` to allowed redirects. Custom SMTP is required for dependable invitations/recovery beyond Supabase's default restricted test email service. Configure strong password requirements (at least 12 characters).
-7. After deployment, Authentication → Users → Add user → Send invitation: invite france.arena@googlemail.com and francesco.arena@nexigroup.com. Normal accounts start inactive and are activated explicitly by the app administrator invitation endpoint (or Restore access). Dashboard-created normal users must be activated separately. This prevents accidental open signup from granting application access. The SQL trigger assigns admin role only to these initial email identities, not from user-editable metadata. Invitation opens the password setup in the app. Never create roles through frontend metadata.
-8. Log in as admin. Invite a test user from Access. Test all checklist items below BEFORE pilot.
-9. Choose an appropriate Vercel plan for business use. Supabase Free can pause low-activity projects; it is not a production availability guarantee.
+## Netlify deployment
 
-## Acceptance checklist (live configuration required)
-- Uninvited signup rejected by Supabase, including direct SDK request.
-- Both admins can sign in; invited normal user sees no Reporting/Access.
-- Normal user calling report/users/invite/review endpoints receives 403.
-- Anonymous publishable-key table reads/writes denied; authenticated direct reads/writes denied.
-- Suspended already-logged-in user cannot read/write through API, even with an unexpired token.
-- Invite, password setup, forgotten-password email and re-login work on real destination URL.
-- Real submission saved pending; double click/retry cannot create a second record with same request ID.
-- Demo blocked; missing date/channel/mix confirmation blocked; Other requires competitor name.
-- Reviewer inspects all rates and assumptions before approval. Rejected entries not in benchmarks.
-- Retention outcome stored for correct owner only. User deletion retains quotes with owner_id null.
-- DE/FR/EN/IT switch, mobile keyboard/forms and both PDF layouts checked on target devices.
+Connect this repository to Netlify. `netlify.toml` sets build command `npm run build`, publish directory `dist` and function directory `netlify/functions`. Node 22+.
 
-## Financial scope
-The original indicative calculator cost formula is preserved. Percentage fees apply to turnover shares; per-payment amounts use separate transaction counts if entered, otherwise turnover shares. Card IC++ uses entered interchange/scheme percentage estimates; TWINT separate. Scheme fixed fees, refunds/chargebacks, card region/product mix, taxes and card-specific minimum charges are not comprehensively modeled. Monthly minimum excludes TWINT under the original formula: verify quote terms.
+Create these runtime environment variables in the Netlify UI (not in Git):
 
-Reporting reference profile: CHF 500,000/year, 10,000 payments/year, 30% Debit MC, 30% Visa Debit, 25% Credit, 15% TWINT, 0% Other. Setup costs included fully in first year. Card IC++ assumptions: debit interchange .20% + scheme .12%; credit .40% + .15%; other 1.50% + .70%. These are illustrative, not sourced live rates. Comparison results are not underwriting/pricing authority.
+- `RESEND_API_KEY`: sending-enabled Resend key (secret).
+- `MAIL_FROM`: `onboarding@resend.dev` for initial testing.
+- `MAIL_TO`: the exact verified Resend account email for testing with the resend.dev sender.
 
-Library snapshots preserve the entered assumptions for review. Benchmark reference assumptions are held constant across dates to avoid fictitious fee trends. Groups for monthly competitor observation: month/provider/channel/turnover band/model. No trend claim below five quotes, and none are representative market statistics. Nexi overall reference summary covers options, not independent quotes. Observed retention is based on approved closed cases and is not causal evidence.
+Current test setup agreed with owner: MAIL_TO=france.arena@googlemail.com. Later destination: francesco.arena@nexigroup.com, then a shared mailbox. A resend.dev test sender only sends to the account address. Verify an authorised sender domain before sending to arbitrary recipients. No mail destination is hard-coded; change MAIL_TO then redeploy. No Supabase variables are needed.
 
-Server report read capped at 5,000 rows with visible warning. Before this cap is approached, implement paginated/server-aggregated reporting. No automatic global collection of local comparisons.
+Resend endpoint: `/api/send-pdf`. It allows POST multipart uploads only from configured Netlify deployment origins (`URL`, `DEPLOY_PRIME_URL`, `DEPLOY_URL`), limits size, validates PDF signature/hash, and fixes sender/recipient server-side. Netlify rate limiting permits five requests per minute per IP/domain; ensure this rule is active on your plan after deployment. Same-origin checks are browser protection, not authentication. Public URL access is intentional. Apply additional platform controls if needed for business rollout.
 
-## Development
-Node 22+; `npm ci`, `npm run build`, `npm test`. Unit tests cover indicative formulas, strict payload allowlisting and authorization denials. Browser integration tests (mocked auth/server) are in tests/browser-check.mjs; run separately after installing Playwright Chromium. Real services still need the acceptance checklist.
+Resend idempotency keys derive from comparison ID and PDF hash. Retrying unchanged data uses the same key within the provider's idempotency window. Accepted means handed to Resend, not confirmed inbox delivery. Provider errors are not logged with customer data. Host and mail-provider operational logs/retention are outside the calculator's no-database design.
+
+## Local verification
+
+```
+npm ci
+npm test
+npm run build
+python3 -m http.server 8765 --directory dist
+# In another terminal:
+npx playwright install chromium
+npm run test:browser
+```
+
+The browser tests mock mail delivery and do not send email. They verify exports, four languages, pricing fixtures, reset, mobile and mail-failure handling. Inspect generated `test-output` PDFs manually or with Poppler. Live Netlify mail delivery and Salesforce import require separate end-to-end checks.
+
+PDF uses embedded standard Helvetica with Western European encoding. Unsupported characters outside that encoding are replaced with `?`; original strings are preserved in JSON. Cost logic is retained from the pilot, including annual card minimums, terminal quantities and annualised one-off costs. This is an indicative comparison, not a binding quotation.
+
+## Removed
+
+Supabase Auth/API/schema scripts, invitation/user management, reporting library, internal-only comparison modes, persisted retention workflow, Vercel config and duplicate legacy root frontend files. This code change does not delete an existing Supabase project or historical data at the provider.

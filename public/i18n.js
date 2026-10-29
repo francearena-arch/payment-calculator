@@ -121,7 +121,7 @@ window.PaymentI18n=(()=>{
     setupLabel:['Einmalige Einrichtung','Frais d’installation uniques','One-off setup','Attivazione una tantum'],
     surcharge:['Zusätzlicher variabler Zuschlag','Supplément variable','Additional variable surcharge','Supplemento variabile'],
     minLabel:['Mindestgebühr Acquiring / Monat','Frais minimum d’acquisition / mois','Minimum acquiring fee / month','Commissione minima acquiring / mese'],
-    defaultName1:['Nexi mit Terminalmiete','Nexi avec location du terminal','Nexi with terminal rental','Nexi con canone terminale'],
+    defaultName1:['Nexi Angebot','Offre Nexi','Nexi offer','Offerta Nexi'],
     defaultName2:['Nexi ohne Terminalmiete','Nexi sans location du terminal','Nexi without terminal rental','Nexi senza canone terminale'],
     defaultName3:['Nexi Verbandsangebot','Offre Nexi pour associations','Nexi association offer','Offerta Nexi per associazioni'],
     defaultName4:['Angebot des Wettbewerbers','Offre concurrente','Competitor offer','Offerta del concorrente']
