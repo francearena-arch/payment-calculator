@@ -1,4 +1,4 @@
-# Nexi Payment Calculator 5.0
+# Nexi Payment Calculator 5.1
 
 Stateless browser calculator for one Nexi offer against one competitor offer. Each side independently supports Split Blend or IC++. DE/FR/EN/IT UI and PDF output are supported.
 
@@ -47,3 +47,7 @@ PDF uses embedded standard Helvetica with Western European encoding. Unsupported
 ## Removed
 
 Supabase Auth/API/schema scripts, invitation/user management, reporting library, internal-only comparison modes, persisted retention workflow, Vercel config and duplicate legacy root frontend files. This code change does not delete an existing Supabase project or historical data at the provider.
+
+## 5.1 interface update
+
+Payment Calculator title; simplified context; Frontbook and Retention labels; Credit, ASF and Scheme Fee terminology; Competitor auswählen / Competitor Angebot in German; no numbered offer labels. The mix confirmation badge, checkbox and confirmation claims are removed. Calculations use exactly one year and include one-off setup costs in full. JSON retains oneOffCostYears=1 and no longer exports mixConfirmed, so it cannot imply a user confirmation. Example loading seeds ASF 0.45% and monthly terminal rent CHF 25 on both sides, including when switching pricing models.
