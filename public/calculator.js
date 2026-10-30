@@ -13,6 +13,9 @@ const exampleKinds=[
 ];
 const kinds=exampleKinds.map(k=>({...k}));
 const groups=kinds.map(k=>k.id);
+const mixLogos={mcDebit:['master'],visaDebit:['visa','v_pay'],credit:['visa','master'],twint:['twint'],other:['jcb','diners_club','american_express','unionpay']};
+const logoNames={master:'Mastercard',visa:'Visa',v_pay:'V PAY',twint:'TWINT',jcb:'JCB',diners_club:'Diners Club',american_express:'American Express',unionpay:'UnionPay'};
+
 const mode='competitor';let demo=false,txMixEnabled=false;
 const make=(provider='Nexi')=>({name:'',nameEdited:false,provider,model:'split',rates:Object.fromEntries(groups.map(k=>[k,''])),fixed:Object.fromEntries(groups.map(k=>[k,''])),rate:'',rent:'',terminals:'',monthly:'',annual:'',setup:'',minimum:'',surcharge:''});
 const nexi=[make()],competitor=make('competitor');
@@ -44,7 +47,7 @@ function calculate(){
   if($('submission'))$('submission').hidden=mode!=='competitor';if($('competitor-context'))$('competitor-context').hidden=mode!=='competitor';
   const c=context(),current=offers(),usesIc=current.some(o=>o.model==='icpp');
   $('mix-status').textContent=T('activeShare',{share:fmt(c.share,1)});
-  $('mix-preview').innerHTML=kinds.map(k=>`<span>${esc(T(k.id))} <b>${k.share===''?'–':fmt(+k.share,1)} %</b></span>`).join('');
+  $('mix-preview').innerHTML=kinds.map(k=>`<div class="mix-tile"><span class="mix-tile-label">${esc(T(k.id))}</span><b>${k.share===''?'–':fmt(+k.share,1)} %</b><div class="mix-logos">${mixLogos[k.id].map(brand=>`<img src="payment-logos/${brand}.svg" alt="${logoNames[brand]}" width="38" height="24">`).join('')}</div></div>`).join('');
   $('mix-error').textContent=c.mixValid?'':T('invalidMix');
   c.txMixValid=!txMixEnabled||kinds.every(k=>(k.tx===''||num(k.tx)!==null)&&Number.isInteger(+k.tx))&&kinds.reduce((a,k)=>a+(+k.tx),0)===c.tx;
   $('tx-mix-error').textContent=c.txMixValid?'':T('invalidTx',{tx:fmt(c.tx||0)});

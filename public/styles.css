@@ -238,3 +238,17 @@ input::placeholder{color:#9196a8!important;opacity:1;font-weight:400}input:place
 /* One continuous vector stroke prevents seams at the check's join. */
 .hero-result .status-check-vector{display:block;width:46px;height:46px;flex:none;fill:none;stroke:currentColor;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;filter:none;box-shadow:none}
 @media(max-width:480px){.hero-result .status-check-vector{transform:scale(.74)}}
+
+/* Equal payment mix tiles; local brand assets never stretch. */
+#mix-preview{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));grid-auto-rows:1fr;gap:10px}
+#mix-preview .mix-tile{box-sizing:border-box;min-width:0;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;gap:8px;padding:12px;border:1px solid #dedff0;border-radius:12px;background:#fff;min-height:120px}
+#mix-preview .mix-tile-label{display:block;border:0;border-radius:0;background:none;padding:0;font-size:12px;line-height:1.4;white-space:normal;overflow-wrap:anywhere}
+#mix-preview .mix-tile>b{font-size:16px;color:#3435a0}
+#mix-preview .mix-logos{display:flex;flex-wrap:wrap;gap:4px;align-items:center;min-height:24px}
+#mix-preview .mix-logos img{display:block;width:34px;height:22px;object-fit:contain}
+#competitor-context .fields>label,#case-context .fields>label{min-width:0;max-width:100%}
+#competitor-context input,#competitor-context select,#case-context input,#case-context select{display:block;min-width:0;max-width:100%;width:100%;box-sizing:border-box}
+#quote-date{-webkit-appearance:none;appearance:none;min-inline-size:0;max-inline-size:100%}
+#quote-date::-webkit-date-and-time-value{min-width:0;text-align:left}
+@media(max-width:900px){#mix-preview{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:600px){#mix-preview{grid-template-columns:repeat(2,minmax(0,1fr))}.mix-preview-head{flex-wrap:wrap;gap:8px}}

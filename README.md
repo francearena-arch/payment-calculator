@@ -1,4 +1,4 @@
-# Nexi Payment Calculator 5.2.9
+# Nexi Payment Calculator 5.3.0
 
 Stateless browser calculator for one Nexi offer against one competitor offer. Each side independently supports Split Blend or IC++. DE/FR/EN/IT UI and PDF output are supported.
 
@@ -83,3 +83,6 @@ Uses a single continuous SVG stroke with round joins for the green check, elimin
 
 ## 5.2.9 result labels and cleanup
 Removes the service/terminal advice block and bottom footer. Result provider labels follow the selected competitor or manually entered Other provider, escaped as text.
+
+## 5.3.0 payment mix and responsive fields
+Equal responsive payment mix tiles include local brand logos from activemerchant/payment_icons (license in public/payment-logos). Salesforce references use Optional placeholders; ticket amount label shortened. Removes merchant-check sentence from mix preview. Constrains date and context inputs to their grid cells, including WebKit date presentation.

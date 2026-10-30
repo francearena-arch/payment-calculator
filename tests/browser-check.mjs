@@ -6,7 +6,7 @@ const page=await browser.newPage({acceptDownloads:true});const errors=[];page.on
 await mkdir('test-output',{recursive:true});
 await page.goto(process.env.TEST_URL||'http://127.0.0.1:8765');
 await page.waitForSelector('#customer-name');
-assert.equal(await page.locator('.offer').count(),2);assert.equal(await page.locator('.advice,footer').count(),0);
+assert.equal(await page.locator('.offer').count(),2);assert.equal(await page.locator('#account-id').getAttribute('placeholder'),'Optional');assert.equal(await page.locator('.field-help').count(),0);assert.equal(await page.locator('.advice,footer').count(),0);
 assert.equal(await page.locator('[data-mode]').count(),0);assert.equal(await page.locator('.step').count(),0);
 assert.equal(await page.locator('#product-name').innerText(),'Payment Calculator');
 assert.equal(await page.title(),'Payment Calculator');
@@ -18,13 +18,13 @@ assert.equal(await page.locator('.offer').last().locator('input[data-key=name]')
 assert.equal(await page.locator('.intro h1').innerText(),'Vergleichsrechner');
 assert.equal(await page.locator('#volume').getAttribute('placeholder'),"z.B. 500'000");assert.equal(await page.locator('#tx').getAttribute('placeholder'),"z.B. 10'000");
 assert.equal(await page.locator('#tx ~ b').innerText(),'TRX');
-assert.equal(await page.locator('input:not([type=checkbox]):not([type=date]):not(#mix input)').evaluateAll(inputs=>inputs.every(i=>i.value===''&&i.placeholder.startsWith('z.B. '))),true);
+assert.equal(await page.locator('input:not([type=checkbox]):not([type=date]):not(#mix input):not(#account-id):not(#opportunity-id)').evaluateAll(inputs=>inputs.every(i=>i.value===''&&i.placeholder.startsWith('z.B. '))),true);
 assert.equal(await page.locator('#print').isDisabled(),true);
 assert.deepEqual(await page.evaluate(()=>window.PCCCalculator.snapshot().mix),{mcDebit:30,visaDebit:30,credit:25,twint:15,other:0});
 await page.screenshot({path:'test-output/empty-desktop.png',fullPage:true});
 assert.equal(await page.locator('.offer-heading').allTextContents().then(t=>t.join(' ').includes('Option')),false);
 assert.equal(await page.locator('body').innerText().then(t=>/Kredit|Netzwerkgebühr/.test(t)),false);
-await page.locator('#demo').click();assert.ok((await page.locator('#ranking').innerText()).includes('Worldline · Split Blend'));
+await page.locator('#demo').click();assert.equal(await page.locator('#ticket').innerText(),'Durchschnittlicher Ticketbetrag: CHF 50.00');assert.equal(await page.locator('#mix-preview .mix-tile').count(),5);assert.equal(await page.locator('#mix-preview img').evaluateAll(es=>es.every(e=>e.complete&&e.naturalWidth>0)),true);assert.ok((await page.locator('#ranking').innerText()).includes('Worldline · Split Blend'));
 for(const id of ['customer-name','account-id','opportunity-id','channel','purpose','industry','competitor-provider','quote-date'])assert.ok(await page.locator('#'+id).inputValue());
 assert.equal(await page.locator('#result').isVisible(),true);assert.equal(await page.locator('#print').isDisabled(),false);
 assert.equal(await page.locator('.hero-result').getAttribute('data-price-status'),'cheaper');
@@ -74,5 +74,5 @@ await page.locator('.offer').first().locator('[data-key=rent]').fill('25');asser
 await page.locator('.offer').first().locator('.cost-details').evaluate(el=>el.open=true);await page.locator('.offer').first().locator('[data-key=terminals]').fill('2');assert.equal(await page.locator('#print').isDisabled(),false);assert.equal(await page.evaluate(()=>window.PCCCalculator.snapshot().results[0].total),1800);
 await page.locator('.offer').first().locator('[data-model=icpp]').click();assert.equal(await page.locator('.offer').first().locator('[data-key=rate]').inputValue(),'');assert.equal(await page.locator('#print').isDisabled(),true);
 await page.locator('.offer').first().locator('[data-key=rate]').fill('0.45');assert.equal(await page.locator('#print').isDisabled(),true);await page.locator('[data-key="ic:0"]').fill('0.20');await page.locator('[data-key="scheme:0"]').fill('0.12');assert.equal(await page.locator('#print').isDisabled(),false);assert.equal(Math.round(await page.evaluate(()=>window.PCCCalculator.snapshot().results[0].total)),1370);
-await page.reload();await page.waitForSelector('#customer-name');assert.equal(await page.locator('input:not([type=checkbox]):not([type=date]):not(#mix input)').evaluateAll(inputs=>inputs.every(i=>i.value==='')),true);
+await page.reload();await page.waitForSelector('#customer-name');assert.equal(await page.locator('input:not([type=checkbox]):not([type=date]):not(#mix input):not(#account-id):not(#opportunity-id)').evaluateAll(inputs=>inputs.every(i=>i.value==='')),true);
 await page.setViewportSize({width:390,height:844});await page.screenshot({path:'test-output/mobile.png',fullPage:true});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);assert.deepEqual(errors,[]);await browser.close();console.log('Browser checks passed: direct access, validation, mixed models, JSON, PDF, four languages, mail failure, reset, mobile.');
