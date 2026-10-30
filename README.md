@@ -1,4 +1,4 @@
-# Nexi Payment Calculator 5.2.3
+# Nexi Payment Calculator 5.2.4
 
 Stateless browser calculator for one Nexi offer against one competitor offer. Each side independently supports Split Blend or IC++. DE/FR/EN/IT UI and PDF output are supported.
 
@@ -65,3 +65,6 @@ Initial and reset forms use editable payment mix (30/30/25/15/0), Interchange an
 
 ## 5.2.3 complete example and competitor palette
 Example loading fills missing customer context, Salesforce example references, channel, purpose, industry, competitor and quote date so a fresh form immediately shows a recommendation. Existing context values are preserved. Competitor card uses pale pink and coral accents with white inputs.
+
+## 5.2.4 offer palettes
+Nexi card uses lavender with purple accents and a white-on-purple tag. Competitor tag is white on #C00000; competitor card text and controls use #C00000. Inputs remain white.

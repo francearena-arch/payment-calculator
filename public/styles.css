@@ -202,3 +202,12 @@ input::placeholder{color:#9196a8!important;opacity:1;font-weight:400}input:place
 .offer.competitor .model-toggle{background:#f7cdd1}
 .offer.competitor input{background:#fff}
 .offer.competitor .cost-details,.offer.competitor .offer-total,.offer.competitor .fixed-details{border-color:#efb9c0}
+
+/* Offer palettes aligned with the supplied Nexi and competitor references. */
+.offer:not(.competitor){background:#d2d2ef;border-color:#3936bf}
+.offer:not(.competitor) .provider-tag{background:#3936bf;color:#fff}
+.offer:not(.competitor) .model-toggle{background:#bfbfe6}
+.offer:not(.competitor) input{background:#fff}
+.offer:not(.competitor) .cost-details,.offer:not(.competitor) .offer-total{border-color:#b7b7de}
+.offer.competitor,.offer.competitor p,.offer.competitor span:not(.provider-tag),.offer.competitor label,.offer.competitor input,.offer.competitor summary,.offer.competitor button,.offer.competitor strong,.offer.competitor b,.offer.competitor small,.offer.competitor .subtle,.offer.competitor .offer-total,.offer.competitor .offer-heading,.offer.competitor .control b{color:#C00000}
+.offer.competitor .provider-tag{background:#C00000;color:#fff}
