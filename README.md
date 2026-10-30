@@ -1,4 +1,4 @@
-# Nexi Payment Calculator 5.3.1
+# Nexi Payment Calculator 5.3.2
 
 Stateless browser calculator for one Nexi offer against one competitor offer. Each side independently supports Split Blend or IC++. DE/FR/EN/IT UI and PDF output are supported.
 
@@ -89,3 +89,6 @@ Equal responsive payment mix tiles include local brand logos from activemerchant
 
 ## 5.3.1 input logos and actions
 Moves Example loading to the page headline. Adds local logo tiles immediately before editable payment mix shares. JSON and New comparison are equal filled buttons in two responsive columns.
+
+## 5.3.2 export wording and audit
+Renames the export button to JSON-Datei herunterladen (localized). See docs/AUDIT-2026-10-31.md for the model audit, tariff gaps and reproduced validation defects. No pricing assumptions changed. Numerical reproduction: node tests/audit-calculation.mjs with a local dist server.
