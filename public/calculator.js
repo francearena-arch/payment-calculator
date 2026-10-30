@@ -11,7 +11,7 @@ const exampleKinds=[
   {id:'twint',tx:'',share:'15',ic:'',scheme:''},
   {id:'other',tx:'',share:'0',ic:'1.50',scheme:'0.70'}
 ];
-const kinds=exampleKinds.map(k=>({id:k.id,tx:'',share:'',ic:'',scheme:''}));
+const kinds=exampleKinds.map(k=>({...k}));
 const groups=kinds.map(k=>k.id);
 const mode='competitor';let demo=false,txMixEnabled=false;
 const make=(provider='Nexi')=>({name:'',nameEdited:false,provider,model:'split',rates:Object.fromEntries(groups.map(k=>[k,''])),fixed:Object.fromEntries(groups.map(k=>[k,''])),rate:'',rent:'',terminals:'',monthly:'',annual:'',setup:'',minimum:'',surcharge:''});

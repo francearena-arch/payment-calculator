@@ -1,4 +1,4 @@
-# Nexi Payment Calculator 5.2.1
+# Nexi Payment Calculator 5.2.2
 
 Stateless browser calculator for one Nexi offer against one competitor offer. Each side independently supports Split Blend or IC++. DE/FR/EN/IT UI and PDF output are supported.
 
@@ -59,3 +59,6 @@ The headline is Vergleichsrechner and the annual transaction field unit is TRX. 
 ## 5.2.1 icon release
 
 Replaces the P/C mark with the approved solid white calculator, purple details and gradient tile. Tile: 46 px; inner symbol canvas: 41 px. Uses the same local vector asset as the browser favicon. No external icon request or added runtime dependency.
+
+## 5.2.2 calculation defaults
+Initial and reset forms use editable payment mix (30/30/25/15/0), Interchange and Scheme Fee assumptions. All other manual fields remain empty. These assumptions are used directly in calculations and exports.
