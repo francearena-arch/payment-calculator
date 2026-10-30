@@ -28,10 +28,10 @@ await page.locator('#demo').click();
 for(const id of ['customer-name','account-id','opportunity-id','channel','purpose','industry','competitor-provider','quote-date'])assert.ok(await page.locator('#'+id).inputValue());
 assert.equal(await page.locator('#result').isVisible(),true);assert.equal(await page.locator('#print').isDisabled(),false);
 assert.equal(await page.locator('.hero-result').getAttribute('data-price-status'),'cheaper');
-assert.ok((await page.locator('#winner').innerText()).includes('637.50'));
+assert.ok((await page.locator('#winner').innerText()).includes('637.50'));assert.equal(await page.locator('.price-status-icon .status-check').count(),1);
 await page.locator('.offer').first().locator('[data-key="rate:mcDebit"]').fill('10');
 assert.equal(await page.locator('.hero-result').getAttribute('data-price-status'),'costlier');
-assert.equal(await page.locator('.price-status-icon').innerText(),'×');
+assert.equal(await page.locator('.price-status-icon .status-cross').count(),1);
 for(const key of ['mcDebit','visaDebit','credit','twint']){const value=await page.locator('.offer').last().locator(`[data-key="rate:${key}"]`).inputValue();await page.locator('.offer').first().locator(`[data-key="rate:${key}"]`).fill(value);}
 assert.equal(await page.locator('.hero-result').getAttribute('data-price-status'),'equal');assert.equal(await page.locator('.price-status-icon').innerText(),'=');
 await page.setViewportSize({width:320,height:800});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);await page.setViewportSize({width:1280,height:800});

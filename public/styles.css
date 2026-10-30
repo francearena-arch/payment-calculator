@@ -226,3 +226,11 @@ input::placeholder{color:#9196a8!important;opacity:1;font-weight:400}input:place
 .hero-result[data-price-status=costlier] .price-status-icon{color:#c00000}
 .hero-result[data-price-status=equal] .price-status-icon{color:#686578}
 @media(max-width:480px){.hero-result{gap:12px;padding:20px}.hero-result .price-status-icon{flex-basis:50px;width:50px;height:50px;font-size:34px}.hero-result #winner{font-size:30px}.hero-result #saving{font-size:18px}}
+
+/* Explicit shapes avoid font-dependent glyph sizing and align with the approved preview. */
+.hero-result .price-status-icon{position:relative;display:grid;place-items:center;box-shadow:none;text-shadow:none;filter:none}
+.hero-result .status-check,.hero-result .status-cross{display:block;position:relative;width:46px;height:46px;flex:none;box-shadow:none;filter:none}
+.hero-result .status-check:after{content:"";position:absolute;width:34px;height:19px;left:5px;top:7px;border-left:6px solid currentColor;border-bottom:6px solid currentColor;border-radius:2px;transform:rotate(-48deg);box-sizing:content-box;box-shadow:none}
+.hero-result .status-cross:before,.hero-result .status-cross:after{content:"";position:absolute;left:0;top:20px;width:46px;height:6px;background:currentColor;border-radius:4px;transform:rotate(45deg);box-shadow:none}
+.hero-result .status-cross:after{transform:rotate(-45deg)}
+@media(max-width:480px){.hero-result .status-check,.hero-result .status-cross{transform:scale(.74)}}

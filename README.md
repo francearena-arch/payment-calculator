@@ -1,4 +1,4 @@
-# Nexi Payment Calculator 5.2.6
+# Nexi Payment Calculator 5.2.7
 
 Stateless browser calculator for one Nexi offer against one competitor offer. Each side independently supports Split Blend or IC++. DE/FR/EN/IT UI and PDF output are supported.
 
@@ -74,3 +74,6 @@ Competitor field captions are black. Red accents, input values, units and the wh
 
 ## 5.2.6 annual price difference
 Highlights the absolute annual price difference from the Nexi perspective. White circular status shows a green tick for lower Nexi cost, red cross for higher cost, and neutral equals for equal cost (below CHF 0.005 difference). Includes all four UI languages and responsive layout.
+
+## 5.2.7 centered status symbols
+Replaces font glyphs with larger centered check and cross shapes matching the approved preview. Existing circle sizes, colors and conditional logic remain unchanged.
