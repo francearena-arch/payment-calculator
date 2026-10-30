@@ -211,3 +211,6 @@ input::placeholder{color:#9196a8!important;opacity:1;font-weight:400}input:place
 .offer:not(.competitor) .cost-details,.offer:not(.competitor) .offer-total{border-color:#b7b7de}
 .offer.competitor,.offer.competitor p,.offer.competitor span:not(.provider-tag),.offer.competitor label,.offer.competitor input,.offer.competitor summary,.offer.competitor button,.offer.competitor strong,.offer.competitor b,.offer.competitor small,.offer.competitor .subtle,.offer.competitor .offer-total,.offer.competitor .offer-heading,.offer.competitor .control b{color:#C00000}
 .offer.competitor .provider-tag{background:#C00000;color:#fff}
+
+/* Field captions stay neutral; competitor accents remain red. */
+.offer.competitor label{color:#000}
