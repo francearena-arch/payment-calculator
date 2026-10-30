@@ -234,3 +234,7 @@ input::placeholder{color:#9196a8!important;opacity:1;font-weight:400}input:place
 .hero-result .status-cross:before,.hero-result .status-cross:after{content:"";position:absolute;left:0;top:20px;width:46px;height:6px;background:currentColor;border-radius:4px;transform:rotate(45deg);box-shadow:none}
 .hero-result .status-cross:after{transform:rotate(-45deg)}
 @media(max-width:480px){.hero-result .status-check,.hero-result .status-cross{transform:scale(.74)}}
+
+/* One continuous vector stroke prevents seams at the check's join. */
+.hero-result .status-check-vector{display:block;width:46px;height:46px;flex:none;fill:none;stroke:currentColor;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;filter:none;box-shadow:none}
+@media(max-width:480px){.hero-result .status-check-vector{transform:scale(.74)}}

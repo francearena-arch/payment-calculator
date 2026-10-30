@@ -1,4 +1,4 @@
-# Nexi Payment Calculator 5.2.7
+# Nexi Payment Calculator 5.2.8
 
 Stateless browser calculator for one Nexi offer against one competitor offer. Each side independently supports Split Blend or IC++. DE/FR/EN/IT UI and PDF output are supported.
 
@@ -77,3 +77,6 @@ Highlights the absolute annual price difference from the Nexi perspective. White
 
 ## 5.2.7 centered status symbols
 Replaces font glyphs with larger centered check and cross shapes matching the approved preview. Existing circle sizes, colors and conditional logic remain unchanged.
+
+## 5.2.8 seamless check
+Uses a single continuous SVG stroke with round joins for the green check, eliminating the CSS border seam. Circle, color and icon dimensions are retained.
