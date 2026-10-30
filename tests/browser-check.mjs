@@ -7,13 +7,20 @@ await mkdir('test-output',{recursive:true});
 await page.goto(process.env.TEST_URL||'http://127.0.0.1:8765');
 await page.waitForSelector('#customer-name');
 assert.equal(await page.locator('.offer').count(),2);
-assert.equal(await page.locator('[data-mode]').count(),0);
+assert.equal(await page.locator('[data-mode]').count(),0);assert.equal(await page.locator('.step').count(),0);
 assert.equal(await page.locator('#product-name').innerText(),'Payment Calculator');
 assert.equal(await page.title(),'Payment Calculator');
 assert.equal(await page.locator('.intro p,.context-title,#mix-tag,#mix-confirm,#years').count(),0);
 assert.equal(await page.locator('#purpose option[value=acquisition]').innerText(),'Frontbook');
 assert.equal(await page.locator('#competitor-provider').locator('..').locator('span[data-label=competitor]').innerText(),'Competitor auswählen');
-assert.equal(await page.locator('.offer').last().locator('input[data-key=name]').inputValue(),'Competitor Angebot');
+assert.equal(await page.locator('.offer').last().locator('input[data-key=name]').inputValue(),'');
+assert.equal(await page.locator('.offer').last().locator('input[data-key=name]').getAttribute('placeholder'),'z.B. Competitor Angebot');
+assert.equal(await page.locator('.intro h1').innerText(),'Vergleichsrechner');
+assert.equal(await page.locator('#volume').getAttribute('placeholder'),"z.B. 500'000");assert.equal(await page.locator('#tx').getAttribute('placeholder'),"z.B. 10'000");
+assert.equal(await page.locator('#tx ~ b').innerText(),'TRX');
+assert.equal(await page.locator('input:not([type=checkbox]):not([type=date])').evaluateAll(inputs=>inputs.every(i=>i.value===''&&i.placeholder.startsWith('z.B. '))),true);
+assert.equal(await page.locator('#print').isDisabled(),true);
+await page.screenshot({path:'test-output/empty-desktop.png',fullPage:true});
 assert.equal(await page.locator('.offer-heading').allTextContents().then(t=>t.join(' ').includes('Option')),false);
 assert.equal(await page.locator('body').innerText().then(t=>/Kredit|Netzwerkgebühr/.test(t)),false);
 await page.locator('#customer-name').fill('Müller & Söhne AG');
@@ -37,4 +44,14 @@ await page.screenshot({path:'test-output/desktop.png',fullPage:true});
 await page.unroute('**/api/send-pdf');await page.route('**/api/send-pdf',route=>route.fulfill({status:502,body:'error'}));download=page.waitForEvent('download');await page.locator('#print').click();await download;await page.waitForSelector('#action-status.error');
 // Reset clears identity and pricing, without browser storage.
 page.once('dialog',d=>d.accept());await page.locator('#new-case').click();await page.waitForFunction(()=>document.querySelector('#customer-name')?.value==='');assert.equal(await page.locator('#account-id').inputValue(),'');assert.equal(await page.locator('#competitor-provider').inputValue(),'');assert.equal(await page.evaluate(()=>localStorage.length+sessionStorage.length),0);
+// A manually entered Split Blend comparison needs no hidden IC assumptions or optional costs.
+await page.locator('#channel').selectOption('Retention');await page.locator('#volume').fill('100000');await page.locator('#tx').fill('1000');
+await page.locator('.extra-settings').evaluate(el=>el.open=true);await page.locator('[data-key="share:0"]').fill('100');
+for(const offer of await page.locator('.offer').all()){await offer.locator('[data-key=name]').fill('Manual offer');await offer.locator('[data-key="rate:mcDebit"]').fill('1.2');}
+assert.equal(await page.locator('#print').isDisabled(),false);let manualSnapshot=await page.evaluate(()=>window.PCCCalculator.snapshot());assert.equal(manualSnapshot.results[0].total,1200);assert.equal(manualSnapshot.assumptions.mcDebit.ic,null);assert.equal(manualSnapshot.offers[0].rent,0);assert.equal(manualSnapshot.offers[0].terminals,0);
+await page.locator('.offer').first().locator('[data-key=rent]').fill('25');assert.equal(await page.locator('#print').isDisabled(),true);
+await page.locator('.offer').first().locator('.cost-details').evaluate(el=>el.open=true);await page.locator('.offer').first().locator('[data-key=terminals]').fill('2');assert.equal(await page.locator('#print').isDisabled(),false);assert.equal(await page.evaluate(()=>window.PCCCalculator.snapshot().results[0].total),1800);
+await page.locator('.offer').first().locator('[data-model=icpp]').click();assert.equal(await page.locator('.offer').first().locator('[data-key=rate]').inputValue(),'');assert.equal(await page.locator('#print').isDisabled(),true);
+await page.locator('.offer').first().locator('[data-key=rate]').fill('0.45');assert.equal(await page.locator('#print').isDisabled(),true);await page.locator('[data-key="ic:0"]').fill('0.20');await page.locator('[data-key="scheme:0"]').fill('0.12');assert.equal(await page.locator('#print').isDisabled(),false);assert.equal(Math.round(await page.evaluate(()=>window.PCCCalculator.snapshot().results[0].total)),1370);
+await page.reload();await page.waitForSelector('#customer-name');assert.equal(await page.locator('input:not([type=checkbox]):not([type=date])').evaluateAll(inputs=>inputs.every(i=>i.value==='')),true);
 await page.setViewportSize({width:390,height:844});await page.screenshot({path:'test-output/mobile.png',fullPage:true});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);assert.deepEqual(errors,[]);await browser.close();console.log('Browser checks passed: direct access, validation, mixed models, JSON, PDF, four languages, mail failure, reset, mobile.');

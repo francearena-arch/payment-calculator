@@ -1,4 +1,4 @@
-# Nexi Payment Calculator 5.1
+# Nexi Payment Calculator 5.2
 
 Stateless browser calculator for one Nexi offer against one competitor offer. Each side independently supports Split Blend or IC++. DE/FR/EN/IT UI and PDF output are supported.
 
@@ -10,7 +10,7 @@ Stateless browser calculator for one Nexi offer against one competitor offer. Ea
 - PDF creation downloads a real PDF and automatically posts exactly those PDF bytes to the mail function. No separate send action or pre-send notice. A delivery error is shown without preventing download.
 - JSON export includes schema/calculator version, comparison UUID, timestamp, customer/context fields, volume, transactions, separate transaction mix, assumptions, raw offer values and full annual result breakdowns. Unchanged exports share the timestamp/ID. Map this schema to the existing Salesforce importer; actual Salesforce acceptance has not been tested here.
 - Reset clears the page. No localStorage, sessionStorage or IndexedDB is used. Back-forward cache restoration triggers reset.
-- Unknown inactive rates remain null in JSON, not zero. PDF denotes these with a dash. Default IC and mix values remain illustrative and are clearly labelled.
+- Unknown inactive rates remain null in JSON, not zero. PDF denotes these with a dash. IC and mix examples are shown as placeholders only until explicitly entered or loaded.
 
 ## Netlify deployment
 
@@ -51,3 +51,7 @@ Supabase Auth/API/schema scripts, invitation/user management, reporting library,
 ## 5.1 interface update
 
 Payment Calculator title; simplified context; Frontbook and Retention labels; Credit, ASF and Scheme Fee terminology; Competitor auswählen / Competitor Angebot in German; no numbered offer labels. The mix confirmation badge, checkbox and confirmation claims are removed. Calculations use exactly one year and include one-off setup costs in full. JSON retains oneOffCostYears=1 and no longer exports mixConfirmed, so it cannot imply a user confirmation. Example loading seeds ASF 0.45% and monthly terminal rent CHF 25 on both sides, including when switching pricing models.
+
+## 5.2 empty form and placeholders
+
+The headline is Vergleichsrechner and the annual transaction field unit is TRX. All manual text/number inputs start empty with localised gray example placeholders; the quote date stays empty and dropdowns remain unselected. No placeholder value participates in calculations or exports. Optional empty cost fields and terminal quantity export as zero; positive terminal rent requires an explicit positive integer terminal quantity. Offer names and active rates are required. IC and Scheme Fee inputs are required only for active card types when at least one IC++ offer is selected. Loading the example fills payment volumes, mix, IC/Scheme Fee assumptions, offer names, rates and optional costs explicitly. Reset restores the empty form. The three section number badges are removed.

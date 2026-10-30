@@ -1,18 +1,19 @@
 window.PaymentI18n=(()=>{
   const locale={de:'de-CH',fr:'fr-CH',en:'en-CH',it:'it-CH'};
   const D={requiredChannel:['Bitte zuerst den Sales Channel auswählen.','Veuillez sélectionner le canal de vente.','Please select the sales channel first.','Seleziona prima il canale di vendita.'],
+    example:['z.B. {value}','p. ex. {value}','e.g. {value}','es. {value}'],
     languageHeading:['Sprache','Langue','Language','Lingua'],
     languageTrigger:['Sprache ändern','Changer de langue','Change language','Cambia lingua'],
     languageClose:['Schliessen','Fermer','Close','Chiudi'],
     product:['Payment Calculator','Payment Calculator','Payment Calculator','Payment Calculator'],
     eyebrow:['PAYMENT COMPARISON','PAYMENT COMPARISON','PAYMENT COMPARISON','PAYMENT COMPARISON'],
-    headline:['Finde das passende Angebot.','Trouvez l’offre adaptée.','Find the right offer.','Trova l’offerta giusta.'],
+    headline:['Vergleichsrechner','Calculateur comparatif','Comparison calculator','Calcolatore di confronto'],
     basisTitle:['Wie zahlt der Merchant?','Comment paie la clientèle?','How do customers pay?','Come pagano i clienti?'],
     demoButton:['Beispiel laden','Voir un exemple','Load example','Carica esempio'],
     demoLoaded:['Beispiel laden','Exemple chargé','Example loaded','Esempio caricato'],
     volumeLabel:['Zahlungsumsatz pro Jahr (inkl. TWINT)','Chiffre d’affaires annuel des paiements (TWINT inclus)','Annual payment turnover (incl. TWINT)','Volume annuo dei pagamenti (TWINT incluso)'],
     txLabel:['Anzahl Transaktionen pro Jahr (inkl. TWINT)','Nombre de transactions par an (TWINT inclus)','Transactions per year (incl. TWINT)','Transazioni annue (TWINT incluso)'],
-    txUnit:['Transaktionen','transactions','transactions','transazioni'],
+    txUnit:['TRX','TRX','TRX','TRX'],
     mixHeading:['Verwendeter Zahlungsartenmix','Répartition des moyens de paiement','Payment method mix used','Ripartizione dei metodi di pagamento'],
     mix100:['100 % Umsatz','100 % du chiffre d’affaires','100% of turnover','100% del volume'],
     mixPreviewNote:['Die Anteile bestimmen die gewichteten Kosten beider Angebote. Bitte mit dem Merchant abgleichen.','Ces parts déterminent les coûts pondérés des offres. Vérifiez-les avec le commerçant.','These shares determine the weighted costs of each offer. Check them with the merchant.','Queste quote determinano i costi ponderati delle offerte. Verificale con l’esercente.'],
@@ -58,7 +59,7 @@ window.PaymentI18n=(()=>{
     invalidTx:['Die Transaktionen je Zahlungsart müssen zusammen {tx} ergeben.','Le total des transactions par moyen de paiement doit être {tx}.','Transactions by payment method must add up to {tx}.','Le transazioni per metodo di pagamento devono sommare a {tx}.'],
     ticket:['Das entspricht durchschnittlich {value} pro Zahlung.','Soit {value} par paiement en moyenne.','That is an average of {value} per payment.','La media è {value} per pagamento.'],
     inputMix:['Prüfe den Zahlungsartenmix unter „Zahlungsartenmix anpassen“.','Vérifiez la répartition dans « Modifier la répartition ».','Check the payment mix under “Adjust payment mix”.','Verifica la ripartizione in « Modifica ripartizione ».'],
-    inputRates:['Trage die Sätze für die aktiven Zahlungsarten in beiden Angeboten ein.','Saisissez les taux des moyens de paiement utilisés dans chaque offre.','Enter rates for active payment methods in both offers.','Inserisci i tassi dei metodi di pagamento utilizzati in entrambe le offerte.'],
+    inputRates:['Trage die Angebotsbezeichnungen und Sätze für die aktiven Zahlungsarten ein. Bei Terminalmiete ist auch die Anzahl Terminals erforderlich.','Saisissez les taux des moyens de paiement utilisés dans chaque offre.','Enter rates for active payment methods in both offers.','Inserisci i tassi dei metodi di pagamento utilizzati in entrambe le offerte.'],
     pendingCost:['Jahreskosten nach Eingabe der Sätze','Coût annuel après saisie des taux','Annual cost after entering rates','Costo annuo dopo l’inserimento dei tassi'],
     annualCost:['Gesamtkosten pro Jahr','Coût total par an','Total annual cost','Costo totale annuo'],
     saving:['{cost} pro Jahr · {saving} günstiger als die nächstbeste Option','{cost} par an · {saving} de moins que la deuxième option','{cost} per year · {saving} less than the next option','{cost} all’anno · {saving} in meno della seconda opzione'],
@@ -118,7 +119,9 @@ window.PaymentI18n=(()=>{
   function t(key,vars={}){const row=D[key];let v=row?row[['de','fr','en','it'].indexOf(lang)]:key;return String(v).replace(/\{(\w+)\}/g,(_,k)=>vars[k]??'');}
   function setLang(value){lang=locale[value]?value:'de';document.documentElement.lang=locale[lang];document.title=t('product');}
   function staticText(){const map={'#product-name':'product','.eyebrow':'eyebrow','.intro h1':'headline','.basics h2':'basisTitle','#demo':'demoButton','.basis-fields label:nth-child(1)':'volumeLabel','.basis-fields label:nth-child(2)':'txLabel','#tx~b':'txUnit','.mix-preview-head strong':'mixHeading','.mix-preview-head>span':'mix100','.mix-preview p':'mixPreviewNote','.extra-settings>summary':'assumptions','#mix-setting>.subtle':'mixExplanation','.tx-toggle':'txToggle','.tx-toggle small':'txToggleHelp','.choices h2':'choiceTitle','[data-mode="internal2"] strong':'mode2','[data-mode="internal2"] span':'mode2Sub','[data-mode="internal3"] strong':'mode3','[data-mode="internal3"] span':'mode3Sub','[data-mode="competitor"] strong':'modeCompetitor','[data-mode="competitor"] span':'modeCompetitorSub','.results h2':'recommendation','#print':'pdfButton','.hero-result>span:first-child':'winnerLabel','.advice':'advice','.result-details:nth-of-type(1)>summary':'breakdownTitle','.result-details:nth-of-type(2)>summary':'scenarioTitle','.pdf-heading':'pdfDetails','.source-panel>summary':'sourcesTitle','.source-panel>p':'sourcesText','.source-panel li:nth-child(1) a':'priceSource','.source-panel li:nth-child(2) a':'regions','.source-panel li:nth-child(3) a':'schemeSource','footer':'footer'};
+    document.getElementById('volume').placeholder=t('example',{value:"500'000"});document.getElementById('tx').placeholder=t('example',{value:"10'000"});
     for(const [sel,key] of Object.entries(map)){const el=document.querySelector(sel);if(!el)continue;const node=el.firstChild;if(node?.nodeType===3)node.nodeValue=t(key);else if(!el.querySelector('input,select'))el.textContent=t(key);}
+    document.getElementById('volume').placeholder=t('example',{value:"500'000"});document.getElementById('tx').placeholder=t('example',{value:"10'000"});
     for(const [sel,key] of [['.tx-toggle','txToggle']]){const el=document.querySelector(sel);if(el){const text=[...el.childNodes].find(n=>n.nodeType===3&&n.nodeValue.trim());if(text)text.nodeValue=' '+t(key)+' ';}}
   }
   return {t,setLang,staticText,get lang(){return lang;},get locale(){return locale[lang];}};
