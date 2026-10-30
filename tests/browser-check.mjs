@@ -6,7 +6,7 @@ const page=await browser.newPage({acceptDownloads:true});const errors=[];page.on
 await mkdir('test-output',{recursive:true});
 await page.goto(process.env.TEST_URL||'http://127.0.0.1:8765');
 await page.waitForSelector('#customer-name');
-assert.equal(await page.locator('.offer').count(),2);
+assert.equal(await page.locator('.offer').count(),2);assert.equal(await page.locator('.advice,footer').count(),0);
 assert.equal(await page.locator('[data-mode]').count(),0);assert.equal(await page.locator('.step').count(),0);
 assert.equal(await page.locator('#product-name').innerText(),'Payment Calculator');
 assert.equal(await page.title(),'Payment Calculator');
@@ -24,7 +24,7 @@ assert.deepEqual(await page.evaluate(()=>window.PCCCalculator.snapshot().mix),{m
 await page.screenshot({path:'test-output/empty-desktop.png',fullPage:true});
 assert.equal(await page.locator('.offer-heading').allTextContents().then(t=>t.join(' ').includes('Option')),false);
 assert.equal(await page.locator('body').innerText().then(t=>/Kredit|Netzwerkgebühr/.test(t)),false);
-await page.locator('#demo').click();
+await page.locator('#demo').click();assert.ok((await page.locator('#ranking').innerText()).includes('Worldline · Split Blend'));
 for(const id of ['customer-name','account-id','opportunity-id','channel','purpose','industry','competitor-provider','quote-date'])assert.ok(await page.locator('#'+id).inputValue());
 assert.equal(await page.locator('#result').isVisible(),true);assert.equal(await page.locator('#print').isDisabled(),false);
 assert.equal(await page.locator('.hero-result').getAttribute('data-price-status'),'cheaper');
@@ -53,7 +53,7 @@ let s=JSON.parse(await readFile('test-output/comparison.json','utf8'));assert.eq
 // Different pricing model on each side, independent of the competitor dropdown.
 await page.locator('.offer').first().locator('[data-model="icpp"]').click();assert.equal(await page.locator('.offer').first().locator('[data-key="rate"]').inputValue(),'0.45');
 await page.locator('.offer').last().locator('[data-model="icpp"]').click();assert.equal(await page.locator('.offer').last().locator('[data-key="rate"]').inputValue(),'0.45');assert.equal(await page.locator('.offer').last().locator('[data-key="rent"]').inputValue(),'25');await page.locator('.offer').last().locator('[data-model="split"]').click();
-await page.locator('#competitor-provider').selectOption('Other');await page.locator('#other-provider').fill('Test & Partner');
+await page.locator('#competitor-provider').selectOption('Other');await page.locator('#other-provider').fill('Test & Partner');assert.ok((await page.locator('#ranking').innerText()).includes('Test & Partner · Split Blend'));
 await page.route('**/api/send-pdf',async route=>{const body=route.request().postDataBuffer();assert.ok(body.includes(Buffer.from('%PDF-')));assert.ok(!body.includes(Buffer.from('RESEND_API_KEY')));await route.fulfill({status:200,contentType:'application/json',body:'{"code":"accepted"}'});});
 download=page.waitForEvent('download');await page.locator('#print').click();file=await download;await file.saveAs('test-output/comparison.pdf');await page.waitForFunction(()=>!document.querySelector('#new-case').disabled);
 download=page.waitForEvent('download');await page.locator('#export-json').click();file=await download;await file.saveAs('test-output/mixed.json');s=JSON.parse(await readFile('test-output/mixed.json','utf8'));assert.equal(s.results[0].total,4797.5);assert.equal(s.competitor,'Test & Partner');assert.equal(s.inputs.offers[0].model,'icpp');assert.equal(s.inputs.offers[1].model,'split');assert.equal(s.results[1].terminal,300);assert.equal(s.results[1].total,7225);
