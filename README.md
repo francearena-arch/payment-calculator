@@ -1,4 +1,4 @@
-# Nexi Payment Calculator 5.2.2
+# Nexi Payment Calculator 5.2.3
 
 Stateless browser calculator for one Nexi offer against one competitor offer. Each side independently supports Split Blend or IC++. DE/FR/EN/IT UI and PDF output are supported.
 
@@ -62,3 +62,6 @@ Replaces the P/C mark with the approved solid white calculator, purple details a
 
 ## 5.2.2 calculation defaults
 Initial and reset forms use editable payment mix (30/30/25/15/0), Interchange and Scheme Fee assumptions. All other manual fields remain empty. These assumptions are used directly in calculations and exports.
+
+## 5.2.3 complete example and competitor palette
+Example loading fills missing customer context, Salesforce example references, channel, purpose, industry, competitor and quote date so a fresh form immediately shows a recommendation. Existing context values are preserved. Competitor card uses pale pink and coral accents with white inputs.

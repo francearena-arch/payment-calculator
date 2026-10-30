@@ -195,3 +195,10 @@ input::placeholder{color:#9196a8!important;opacity:1;font-weight:400}input:place
 
 /* Approved solid calculator mark, with balanced space inside its tile. */
 .top-inner .pcc-mark{display:block;flex:0 0 46px;width:46px;height:46px;max-width:none;max-height:none;object-fit:contain;object-position:center;padding:0;border:0;border-radius:13px;background:none;box-shadow:0 4px 10px #3926a826}
+
+/* Competitor palette matches the supplied coral and pale pink reference. */
+.offer.competitor{background:#ffe0e2;border-color:#ff9da5}
+.competitor .provider-tag{background:#ff5b66;color:#60131d}
+.offer.competitor .model-toggle{background:#f7cdd1}
+.offer.competitor input{background:#fff}
+.offer.competitor .cost-details,.offer.competitor .offer-total,.offer.competitor .fixed-details{border-color:#efb9c0}

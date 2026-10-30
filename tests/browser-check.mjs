@@ -24,6 +24,11 @@ assert.deepEqual(await page.evaluate(()=>window.PCCCalculator.snapshot().mix),{m
 await page.screenshot({path:'test-output/empty-desktop.png',fullPage:true});
 assert.equal(await page.locator('.offer-heading').allTextContents().then(t=>t.join(' ').includes('Option')),false);
 assert.equal(await page.locator('body').innerText().then(t=>/Kredit|Netzwerkgebühr/.test(t)),false);
+await page.locator('#demo').click();
+for(const id of ['customer-name','account-id','opportunity-id','channel','purpose','industry','competitor-provider','quote-date'])assert.ok(await page.locator('#'+id).inputValue());
+assert.equal(await page.locator('#result').isVisible(),true);assert.equal(await page.locator('#print').isDisabled(),false);
+assert.equal(await page.locator('.offer.competitor').evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(255, 224, 226)');
+await page.reload();await page.waitForSelector('#customer-name');
 await page.locator('#customer-name').fill('Müller & Söhne AG');
 await page.locator('#account-id').fill('001-test-account');
 await page.locator('#channel').selectOption('Retention');
