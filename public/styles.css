@@ -252,3 +252,20 @@ input::placeholder{color:#9196a8!important;opacity:1;font-weight:400}input:place
 #quote-date::-webkit-date-and-time-value{min-width:0;text-align:left}
 @media(max-width:900px){#mix-preview{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:600px){#mix-preview{grid-template-columns:repeat(2,minmax(0,1fr))}.mix-preview-head{flex-wrap:wrap;gap:8px}}
+
+/* Shared top-level example action, branded share inputs and equal action buttons. */
+.intro{max-width:none;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.intro h1{min-width:0;white-space:normal}
+.intro #demo{flex:none;min-height:44px}
+#mix .mix-row{grid-template-columns:minmax(0,2fr) repeat(2,minmax(0,1fr));align-items:end}
+#mix .mix-row>strong{grid-column:1/-1}
+#mix .mix-row>label{min-width:0}
+#mix .share-controls{display:flex;align-items:stretch;gap:10px;margin-top:8px}
+#mix .share-controls .control{flex:1;min-width:0;margin-top:0;min-height:46px;box-sizing:border-box}
+#mix .share-logo-tile{display:flex;align-items:center;justify-content:center;gap:4px;flex:0 0 100px;box-sizing:border-box;min-height:46px;border:1px solid #dfe3f1;border-radius:10px;background:#fff;flex-wrap:wrap;padding:4px}
+#mix .share-logo-tile img{display:block;width:38px;height:24px;object-fit:contain}
+#actions .action-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:stretch}
+#actions .action-row button{width:100%;min-width:0;min-height:52px;box-sizing:border-box;background:#3835a9;color:#fff;border:0;border-radius:11px;padding:13px 16px;font:inherit;font-weight:700;white-space:normal;overflow-wrap:anywhere;line-height:1.4}
+@media(max-width:600px){#mix .mix-row{grid-template-columns:repeat(2,minmax(0,1fr))}#mix .mix-row>label:first-of-type{grid-column:1/-1}#actions .action-row{gap:10px}#actions .action-row button{padding:12px 8px;font-size:12px}.intro #demo{font-size:11px;padding:10px 12px}}
+#actions #new-case{background:#3835a9!important;color:#fff}
+@media(max-width:600px){.intro h1{font-size:clamp(18px,5vw,24px);letter-spacing:-.04em;overflow-wrap:anywhere}}
