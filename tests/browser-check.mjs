@@ -27,6 +27,15 @@ assert.equal(await page.locator('body').innerText().then(t=>/Kredit|NetzwerkgebÃ
 await page.locator('#demo').click();
 for(const id of ['customer-name','account-id','opportunity-id','channel','purpose','industry','competitor-provider','quote-date'])assert.ok(await page.locator('#'+id).inputValue());
 assert.equal(await page.locator('#result').isVisible(),true);assert.equal(await page.locator('#print').isDisabled(),false);
+assert.equal(await page.locator('.hero-result').getAttribute('data-price-status'),'cheaper');
+assert.ok((await page.locator('#winner').innerText()).includes('637.50'));
+await page.locator('.offer').first().locator('[data-key="rate:mcDebit"]').fill('10');
+assert.equal(await page.locator('.hero-result').getAttribute('data-price-status'),'costlier');
+assert.equal(await page.locator('.price-status-icon').innerText(),'Ã—');
+for(const key of ['mcDebit','visaDebit','credit','twint']){const value=await page.locator('.offer').last().locator(`[data-key="rate:${key}"]`).inputValue();await page.locator('.offer').first().locator(`[data-key="rate:${key}"]`).fill(value);}
+assert.equal(await page.locator('.hero-result').getAttribute('data-price-status'),'equal');assert.equal(await page.locator('.price-status-icon').innerText(),'=');
+await page.setViewportSize({width:320,height:800});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);await page.setViewportSize({width:1280,height:800});
+
 assert.equal(await page.locator('.offer.competitor').evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(255, 224, 226)');
 assert.equal(await page.locator('.competitor .provider-tag').evaluate(el=>getComputedStyle(el).color),'rgb(255, 255, 255)');
 assert.equal(await page.locator('.competitor .provider-tag').evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(192, 0, 0)');

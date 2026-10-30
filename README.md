@@ -1,4 +1,4 @@
-# Nexi Payment Calculator 5.2.5
+# Nexi Payment Calculator 5.2.6
 
 Stateless browser calculator for one Nexi offer against one competitor offer. Each side independently supports Split Blend or IC++. DE/FR/EN/IT UI and PDF output are supported.
 
@@ -71,3 +71,6 @@ Nexi card uses lavender with purple accents and a white-on-purple tag. Competito
 
 ## 5.2.5 field captions
 Competitor field captions are black. Red accents, input values, units and the white-on-red provider tag are retained.
+
+## 5.2.6 annual price difference
+Highlights the absolute annual price difference from the Nexi perspective. White circular status shows a green tick for lower Nexi cost, red cross for higher cost, and neutral equals for equal cost (below CHF 0.005 difference). Includes all four UI languages and responsive layout.

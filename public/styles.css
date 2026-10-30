@@ -214,3 +214,15 @@ input::placeholder{color:#9196a8!important;opacity:1;font-weight:400}input:place
 
 /* Field captions stay neutral; competitor accents remain red. */
 .offer.competitor label{color:#000}
+
+/* Annual difference is the primary result, with explicit Nexi price status. */
+.hero-result{display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:24px}
+.hero-result .difference-copy{min-width:0}
+.hero-result .difference-heading{display:block;font-size:14px;color:#e3e1ff}
+.hero-result #winner{display:block;font-size:clamp(30px,5vw,48px);line-height:1.15;font-weight:750;letter-spacing:-1px;margin:10px 0 5px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.hero-result #saving{display:block;font-size:20px;font-weight:700}
+.hero-result .difference-context{font-size:13px;line-height:1.5;color:#e3e1ff;margin:16px 0 0;overflow-wrap:anywhere}
+.hero-result .price-status-icon{display:flex;align-items:center;justify-content:center;flex:0 0 68px;width:68px;height:68px;border-radius:50%;background:#fff;color:#16833c;font-size:44px;font-weight:700;line-height:1}
+.hero-result[data-price-status=costlier] .price-status-icon{color:#c00000}
+.hero-result[data-price-status=equal] .price-status-icon{color:#686578}
+@media(max-width:480px){.hero-result{gap:12px;padding:20px}.hero-result .price-status-icon{flex-basis:50px;width:50px;height:50px;font-size:34px}.hero-result #winner{font-size:30px}.hero-result #saving{font-size:18px}}
