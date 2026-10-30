@@ -192,3 +192,6 @@ body.printing-report .reference-terms p{font-size:10px}
 #case-context input,#competitor-context input{border:1px solid #dfe3f1;border-radius:12px;padding:13px 14px;min-height:46px;background:#fff;color:#202344;font:inherit}#case-context label>span,#competitor-context label>span{display:block;margin-bottom:7px}#export-json{background:#3835a9;color:white;border:0;border-radius:11px;padding:13px 20px;font-weight:700}#case-context input:focus,#competitor-context input:focus{outline:2px solid #7773df;outline-offset:2px}
 
 input::placeholder{color:#9196a8!important;opacity:1;font-weight:400}input:placeholder-shown{font-weight:400}
+
+/* Approved solid calculator mark, with balanced space inside its tile. */
+.top-inner .pcc-mark{display:block;flex:0 0 46px;width:46px;height:46px;max-width:none;max-height:none;object-fit:contain;object-position:center;padding:0;border:0;border-radius:13px;background:none;box-shadow:0 4px 10px #3926a826}

@@ -1,4 +1,4 @@
-# Nexi Payment Calculator 5.2
+# Nexi Payment Calculator 5.2.1
 
 Stateless browser calculator for one Nexi offer against one competitor offer. Each side independently supports Split Blend or IC++. DE/FR/EN/IT UI and PDF output are supported.
 
@@ -55,3 +55,7 @@ Payment Calculator title; simplified context; Frontbook and Retention labels; Cr
 ## 5.2 empty form and placeholders
 
 The headline is Vergleichsrechner and the annual transaction field unit is TRX. All manual text/number inputs start empty with localised gray example placeholders; the quote date stays empty and dropdowns remain unselected. No placeholder value participates in calculations or exports. Optional empty cost fields and terminal quantity export as zero; positive terminal rent requires an explicit positive integer terminal quantity. Offer names and active rates are required. IC and Scheme Fee inputs are required only for active card types when at least one IC++ offer is selected. Loading the example fills payment volumes, mix, IC/Scheme Fee assumptions, offer names, rates and optional costs explicitly. Reset restores the empty form. The three section number badges are removed.
+
+## 5.2.1 icon release
+
+Replaces the P/C mark with the approved solid white calculator, purple details and gradient tile. Tile: 46 px; inner symbol canvas: 41 px. Uses the same local vector asset as the browser favicon. No external icon request or added runtime dependency.
