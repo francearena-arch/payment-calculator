@@ -1,4 +1,4 @@
-# Nexi Payment Calculator 5.5.2
+# Nexi Payment Calculator 5.5.3
 
 Stateless browser calculator for one Nexi offer against one competitor offer. Each side independently supports Split Blend or IC++. DE/FR/EN/IT UI and PDF output are supported.
 
@@ -132,3 +132,7 @@ Current test sender: `Payment Calculator <paymentcalculator@resend.dev>`; accept
 ## 5.5.2 PDF navigation ordering
 
 The automatic mail request now completes (accepted or failed) before the browser opens/downloads the local PDF. This avoids a PDF viewer navigation cancelling the subsequent fetch on browsers such as mobile Safari. Mail failure still permits the local PDF download and offers retry on return to the calculator. No inbox confirmation is inferred from local PDF creation or provider acceptance.
+
+## 5.5.3 payment mix layout
+
+Equal 12px disclosure headings, centered tile content and single aligned logo rows. Preview recipient restored to france.arena@googlemail.com; company mailbox delivery deferred until an authorised sender domain is verified.
