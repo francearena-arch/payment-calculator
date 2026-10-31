@@ -1,4 +1,4 @@
-# Nexi Payment Calculator 5.5.5
+# Nexi Payment Calculator 5.5.6
 
 Stateless browser calculator for one Nexi offer against one competitor offer. Each side independently supports Split Blend or IC++. DE/FR/EN/IT UI and PDF output are supported.
 
@@ -136,3 +136,7 @@ The automatic mail request now completes (accepted or failed) before the browser
 ## 5.5.3 payment mix layout
 
 Equal 12px disclosure headings, centered tile content and single aligned logo rows. Preview recipient restored to france.arena@googlemail.com; company mailbox delivery deferred until an authorised sender domain is verified.
+
+## 5.5.6 live recommendation
+
+Calculation visibility depends on valid inputs, independently of the pricing acknowledgement. Valid manual edits immediately update annual costs, ranking, difference and status icon. Pricing acknowledgement is still invalidated on edits and required for exports (except untouched examples). Missing/invalid rates, transaction mixes or required annual minimum-fee top-ups continue to block the result.

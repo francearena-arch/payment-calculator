@@ -61,9 +61,9 @@ function calculate(){
   c.txMixValid=!txMixEnabled||C.transactionMix(kinds,c.tx);
   $('tx-mix-error').textContent=c.txMixValid?'':T('invalidTx',{tx:fmt(c.tx||0)});
   $('ticket').textContent=c.volume>0&&c.tx>0?T('ticket',{value:chf(c.volume/c.tx)}):'';
-  const ready=!!$('channel')?.value&&c.volume>0&&c.tx>0&&Number.isInteger(c.tx)&&Number.isInteger(c.years)&&c.years>=1&&c.years<=10&&c.mixValid&&c.txMixValid&&markupState.valid&&current.every(validOffer)&&(pricingChecked||exampleUntouched)&&current.every(o=>Number.isFinite(cost(o,c).total)&&cost(o,c).total<=C.limits.money);
-  calculationReady=ready;$('message').hidden=ready;$('result').hidden=!ready;$('print').disabled=!ready;
-  if(!ready){$('message').textContent=!$('channel')?.value?T('requiredChannel'):c.volume===null||c.tx===null?T('annualInvalid'):!c.mixValid||!c.txMixValid?T('inputMix'):!markupState.valid?markupState.error:current.some(o=>!C.validMinimum(o))?T('minimumRequired'):!pricingChecked&&!exampleUntouched?T('pricingRequired'):T('inputRates');current.forEach((o,i)=>{$(`total-${i}`).textContent=T('pendingCost');});return;}
+  const ready=!!$('channel')?.value&&c.volume>0&&c.tx>0&&Number.isInteger(c.tx)&&Number.isInteger(c.years)&&c.years>=1&&c.years<=10&&c.mixValid&&c.txMixValid&&markupState.valid&&current.every(validOffer)&&current.every(o=>Number.isFinite(cost(o,c).total)&&cost(o,c).total<=C.limits.money);
+  calculationReady=ready;$('message').hidden=ready;$('result').hidden=!ready;$('print').disabled=!ready||!(pricingChecked||exampleUntouched);
+  if(!ready){$('message').textContent=!$('channel')?.value?T('requiredChannel'):c.volume===null||c.tx===null?T('annualInvalid'):!c.mixValid||!c.txMixValid?T('inputMix'):!markupState.valid?markupState.error:current.some(o=>!C.validMinimum(o))?T('minimumRequired'):T('inputRates');current.forEach((o,i)=>{$(`total-${i}`).textContent=T('pendingCost');});return;}
   const ranked=current.map((o,i)=>({o,i,r:cost(o,c)})).sort((a,b)=>a.r.total-b.r.total);
   current.forEach((o,i)=>{$(`total-${i}`).innerHTML=`<span>${T('annualCost')}</span><strong>${chf(cost(o,c).total)}</strong>`;});
   const difference=cost(competitor,c).total-cost(nexi[0],c).total;
