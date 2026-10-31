@@ -126,3 +126,5 @@ A successful send response includes a provider email ID and a 10-minute signed r
 Each PDF email includes the exact JSON export snapshot (schema 1.2.0) with matching comparison ID and creation timestamp. The subject uses customer name and the snapshot creation date in Europe/Zurich: `Angebotsvergleich – Muster AG – 31.10.2026`. JSON is limited to 250 KB and validated for comparison ID, schema, currency and required metadata before sending. Retry reuses both original attachments; changing either attachment changes the idempotency key. Client data cannot override sender or recipient. The uploaded JSON remains user-supplied comparison data, not a server-certified calculation.
 
 Live PDF-only test on 31 October 2026 was received and opened by the owner. This confirms delivery to the configured Googlemail testing recipient, not rollout to company/shared mailboxes.
+
+Current test sender: `Payment Calculator <paymentcalculator@resend.dev>`; accepted by Resend in a live PDF+JSON preview test on 31 October 2026. This does not remove resend.dev testing-recipient restrictions or constitute a dedicated mailbox.
