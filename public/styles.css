@@ -269,3 +269,18 @@ input::placeholder{color:#9196a8!important;opacity:1;font-weight:400}input:place
 @media(max-width:600px){#mix .mix-row{grid-template-columns:repeat(2,minmax(0,1fr))}#mix .mix-row>label:first-of-type{grid-column:1/-1}#actions .action-row{gap:10px}#actions .action-row button{padding:12px 8px;font-size:12px}.intro #demo{font-size:11px;padding:10px 12px}}
 #actions #new-case{background:#3835a9!important;color:#fff}
 @media(max-width:600px){.intro h1{font-size:clamp(18px,5vw,24px);letter-spacing:-.04em;overflow-wrap:anywhere}}
+
+/* Optional contractual card surcharges: hidden until requested. */
+.card-features{margin-top:18px;padding-top:16px;border-top:1px solid #e4e5f2}
+.card-features>summary{font-weight:700;color:#3835a9;min-height:32px;cursor:pointer}
+.card-features .fields{grid-template-columns:repeat(2,minmax(0,1fr))}
+.card-features label,.card-features .fields>div{min-width:0}
+.card-features input,.card-features select{min-width:0;width:100%;box-sizing:border-box}
+.card-features input[readonly]{background:#f5f4fc;color:#454165}
+.card-features .subtle{margin:12px 0;line-height:1.5}
+.card-features h4{margin:18px 0 12px}
+.card-quoted-rates{margin-top:18px}
+.card-quoted-rates>.fields{margin-top:12px}
+#card-features-error{color:#b00020;font-size:12px;line-height:1.5}
+#card-features-error:empty{display:none}
+@media(max-width:600px){.card-features .fields{grid-template-columns:1fr}.card-features input,.card-features select{font-size:16px}}

@@ -1,4 +1,4 @@
-# Nexi Payment Calculator 5.3.2
+# Nexi Payment Calculator 5.4.0
 
 Stateless browser calculator for one Nexi offer against one competitor offer. Each side independently supports Split Blend or IC++. DE/FR/EN/IT UI and PDF output are supported.
 
@@ -92,3 +92,10 @@ Moves Example loading to the page headline. Adds local logo tiles immediately be
 
 ## 5.3.2 export wording and audit
 Renames the export button to JSON-Datei herunterladen (localized). See docs/AUDIT-2026-10-31.md for the model audit, tariff gaps and reproduced validation defects. No pricing assumptions changed. Numerical reproduction: node tests/audit-calculation.mjs with a local dist server.
+
+
+## 5.4.0 optional card characteristics
+
+Adds explicit contractual card markups, independently selected for each offer, to annual costs, the recommendation, scenarios, PDF and JSON. The section starts collapsed and blank. See [release rules and validation](docs/RELEASE-5.4.0.md). JSON schema is 1.1.0; existing result keys remain, with `cardMarkups` and itemised details added.
+
+Public competitor pricing research is documented in [the tariff review](docs/COMPETITOR-TARIFF-RESEARCH-2026-10-31.md). No unconfirmed competitor defaults are applied.

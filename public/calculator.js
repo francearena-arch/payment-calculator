@@ -1,5 +1,5 @@
 (()=>{'use strict';
-const $=id=>document.getElementById(id),I=window.PaymentI18n,T=(key,vars)=>I.t(key,vars);
+const $=id=>document.getElementById(id),I=window.PaymentI18n,M=window.PCCMarkups,T=(key,vars)=>I.t(key,vars);
 const fmt=(v,d=0)=>new Intl.NumberFormat(I.locale,{minimumFractionDigits:d,maximumFractionDigits:d}).format(v);
 const chf=v=>`CHF ${fmt(v,2)}`;
 const esc=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -16,8 +16,8 @@ const groups=kinds.map(k=>k.id);
 const mixLogos={mcDebit:['master'],visaDebit:['visa','v_pay'],credit:['visa','master'],twint:['twint'],other:['jcb','diners_club','american_express','unionpay']};
 const logoNames={master:'Mastercard',visa:'Visa',v_pay:'V PAY',twint:'TWINT',jcb:'JCB',diners_club:'Diners Club',american_express:'American Express',unionpay:'UnionPay'};
 
-const mode='competitor';let demo=false,txMixEnabled=false;
-const make=(provider='Nexi')=>({name:'',nameEdited:false,provider,model:'split',rates:Object.fromEntries(groups.map(k=>[k,''])),fixed:Object.fromEntries(groups.map(k=>[k,''])),rate:'',rent:'',terminals:'',monthly:'',annual:'',setup:'',minimum:'',surcharge:''});
+const mode='competitor';let demo=false,txMixEnabled=false,calculationReady=false;
+const make=(provider='Nexi')=>({cardMarkup:M.make(),name:'',nameEdited:false,provider,model:'split',rates:Object.fromEntries(groups.map(k=>[k,''])),fixed:Object.fromEntries(groups.map(k=>[k,''])),rate:'',rent:'',terminals:'',monthly:'',annual:'',setup:'',minimum:'',surcharge:''});
 const nexi=[make()],competitor=make('competitor');
 const offers=()=>[nexi[0],competitor];
 const competitorName=()=>{const selected=$('competitor-provider')?.value;return (selected==='Other'?$('other-provider')?.value.trim():selected)||T('competitor');};
@@ -39,23 +39,23 @@ function card(o,i){const rival=o===competitor;return `<article class="offer ${ri
 function renderOffers(){
   
   $('offers').innerHTML=offers().map(card).join('');
-  $('offers').querySelectorAll('.offer').forEach((node,i)=>{const o=offers()[i];node.addEventListener('input',e=>{const key=e.target.dataset.key;if(!key)return;if(key.includes(':')){const [type,k]=key.split(':');o[type==='rate'?'rates':'fixed'][k]=e.target.value;}else{if(key==='name')o.nameEdited=true;o[key]=e.target.value;}calculate();});node.querySelectorAll('[data-model]').forEach(b=>b.onclick=()=>{o.model=b.dataset.model;renderOffers();calculate();});});
+  $('offers').querySelectorAll('.offer').forEach((node,i)=>{const o=offers()[i];node.addEventListener('input',e=>{const key=e.target.dataset.key;if(!key)return;if(key.includes(':')){const [type,k]=key.split(':');o[type==='rate'?'rates':'fixed'][k]=e.target.value;}else{if(key==='name')o.nameEdited=true;o[key]=e.target.value;}calculate();});node.querySelectorAll('[data-model]').forEach(b=>b.onclick=()=>{o.model=b.dataset.model;if(o.model==='icpp'&&o.cardMarkup.mode==='nexi')o.cardMarkup.mode='';renderOffers();M.render(offers(),calculate);calculate();});});
 }
 function context(){const c={volume:num($('volume').value),tx:num($('tx').value),years:1};c.share=kinds.reduce((a,k)=>a+(num(k.share)||0),0);c.mixValid=Math.abs(c.share-100)<.001&&kinds.every(k=>(k.share===''||num(k.share)!==null)&&(!offers().some(o=>o.model==='icpp')||+k.share===0||k.id==='twint'||num(k.ic)!==null&&num(k.scheme)!==null));return c;}
-function cost(o,c,v=c.volume){const tx=v*c.tx/c.volume,blocks=Object.fromEntries(kinds.map(k=>[k.id,{share:(+k.share)/100,volume:v*(+k.share)/100,tx:txMixEnabled?(+k.tx)*v/c.volume:tx*(+k.share)/100}]));let acquiring=0,interchange=0,scheme=0,twint=0;for(const k of kinds){const b=blocks[k.id];if(k.id==='twint'){twint=b.volume*(+o.rates.twint)/100+b.tx*(+o.fixed.twint);continue;}const base=o.model==='split'?+o.rates[k.id]:+o.rate;acquiring+=b.volume*base/100+b.tx*(+o.fixed[k.id]);if(o.model==='icpp'){interchange+=b.volume*(+k.ic)/100;scheme+=b.volume*(+k.scheme)/100;}}const min=Math.max(0,+o.minimum*12-acquiring-interchange-scheme),extra=v*(+o.surcharge)/100,terminal=12*(+o.rent)*(+o.terminals),other=12*(+o.monthly)+(+o.annual),setup=(+o.setup);return {acquiring,interchange,scheme,twint,min,extra,terminal,other,setup,total:acquiring+interchange+scheme+twint+min+extra+terminal+other+setup};}
+function cost(o,c,v=c.volume){const tx=v*c.tx/c.volume,blocks=Object.fromEntries(kinds.map(k=>[k.id,{share:(+k.share)/100,volume:v*(+k.share)/100,tx:txMixEnabled?(+k.tx)*v/c.volume:tx*(+k.share)/100}]));let acquiring=0,interchange=0,scheme=0,twint=0;for(const k of kinds){const b=blocks[k.id];if(k.id==='twint'){twint=b.volume*(+o.rates.twint)/100+b.tx*(+o.fixed.twint);continue;}const base=o.model==='split'?+o.rates[k.id]:+o.rate;acquiring+=b.volume*base/100+b.tx*(+o.fixed[k.id]);if(o.model==='icpp'){interchange+=b.volume*(+k.ic)/100;scheme+=b.volume*(+k.scheme)/100;}}const min=Math.max(0,+o.minimum*12-acquiring-interchange-scheme),extra=v*(+o.surcharge)/100,terminal=12*(+o.rent)*(+o.terminals),other=12*(+o.monthly)+(+o.annual),setup=(+o.setup);const markups=M.cost(o,v);return {acquiring,interchange,scheme,twint,min,extra,terminal,other,setup,...markups,total:acquiring+interchange+scheme+twint+min+extra+terminal+other+setup+markups.cardMarkups};}
 function validOffer(o){const shared=['rent','terminals','monthly','annual','setup','minimum','surcharge'];if(!o.name.trim()||shared.some(k=>o[k]!==''&&num(o[k])===null)||!Number.isInteger(+o.terminals)||(+o.rent>0&&!(+o.terminals>0)))return false;return kinds.every(k=>{const share=+k.share;if(share<=0&&(!txMixEnabled||+k.tx<=0))return true;const rate=o.model==='split'||k.id==='twint'?o.rates[k.id]:o.rate;return num(rate)!==null&&(o.fixed[k.id]===''||num(o.fixed[k.id])!==null);});}
 function calculate(){
   if($('submission'))$('submission').hidden=mode!=='competitor';if($('competitor-context'))$('competitor-context').hidden=mode!=='competitor';
-  const c=context(),current=offers(),usesIc=current.some(o=>o.model==='icpp');
+  const c=context(),current=offers(),usesIc=current.some(o=>o.model==='icpp'),markupState=M.validate(kinds,current);$('card-features-error').textContent=markupState.error;document.querySelectorAll('[data-card-provider-label]').forEach(el=>el.textContent=el.dataset.cardProviderLabel==='0'?'Nexi':competitorName());
   $('mix-status').textContent=T('activeShare',{share:fmt(c.share,1)});
   $('mix-preview').innerHTML=kinds.map(k=>`<div class="mix-tile"><span class="mix-tile-label">${esc(T(k.id))}</span><b>${k.share===''?'–':fmt(+k.share,1)} %</b><div class="mix-logos">${mixLogos[k.id].map(brand=>`<img src="payment-logos/${brand}.svg" alt="${logoNames[brand]}" width="38" height="24">`).join('')}</div></div>`).join('');
   $('mix-error').textContent=c.mixValid?'':T('invalidMix');
   c.txMixValid=!txMixEnabled||kinds.every(k=>(k.tx===''||num(k.tx)!==null)&&Number.isInteger(+k.tx))&&kinds.reduce((a,k)=>a+(+k.tx),0)===c.tx;
   $('tx-mix-error').textContent=c.txMixValid?'':T('invalidTx',{tx:fmt(c.tx||0)});
   $('ticket').textContent=c.volume>0&&c.tx>0?T('ticket',{value:chf(c.volume/c.tx)}):'';
-  const ready=!!$('channel')?.value&&c.volume>0&&c.tx>0&&Number.isInteger(c.tx)&&Number.isInteger(c.years)&&c.years>=1&&c.years<=10&&c.mixValid&&c.txMixValid&&current.every(validOffer);
-  $('message').hidden=ready;$('result').hidden=!ready;$('print').disabled=!ready;
-  if(!ready){$('message').textContent=!$('channel')?.value?T('requiredChannel'):!c.mixValid||!c.txMixValid?T('inputMix'):T('inputRates');current.forEach((o,i)=>{$(`total-${i}`).textContent=T('pendingCost');});return;}
+  const ready=!!$('channel')?.value&&c.volume>0&&c.tx>0&&Number.isInteger(c.tx)&&Number.isInteger(c.years)&&c.years>=1&&c.years<=10&&c.mixValid&&c.txMixValid&&markupState.valid&&current.every(validOffer)&&current.every(o=>Number.isFinite(cost(o,c).total));
+  calculationReady=ready;$('message').hidden=ready;$('result').hidden=!ready;$('print').disabled=!ready;
+  if(!ready){$('message').textContent=!$('channel')?.value?T('requiredChannel'):!c.mixValid||!c.txMixValid?T('inputMix'):!markupState.valid?markupState.error:T('inputRates');current.forEach((o,i)=>{$(`total-${i}`).textContent=T('pendingCost');});return;}
   const ranked=current.map((o,i)=>({o,i,r:cost(o,c)})).sort((a,b)=>a.r.total-b.r.total);
   current.forEach((o,i)=>{$(`total-${i}`).innerHTML=`<span>${T('annualCost')}</span><strong>${chf(cost(o,c).total)}</strong>`;});
   const difference=cost(competitor,c).total-cost(nexi[0],c).total;
@@ -68,15 +68,16 @@ function calculate(){
   const max=Math.max(1,...ranked.map(x=>x.r.total));
   $('ranking').innerHTML=ranked.map((x,i)=>`<div class="rank"><div class="rank-line"><div><b>${esc(name(x.o))}</b><small>${esc(x.o===competitor?competitorName():'Nexi')} · ${x.o.model==='icpp'?'IC++':'Split Blend'}</small></div><strong>${T('rankCost',{cost:chf(x.r.total)})}</strong></div><div class="bar-bg"><div class="bar ${i?'secondary':''}" style="width:${Math.max(2,x.r.total/max*100)}%"></div></div></div>`).join('');
   const rows=[['acquiring','acquiring'],['Interchange','interchange'],['scheme','scheme'],['minimum','min'],['extra','extra'],['terminal','terminal'],['otherCost','other'],['setup','setup'],['total','total']];
-  rows.splice(3,0,['twint','twint']);
-  $('breakdown').innerHTML=`<div class="table-wrap"><table><thead><tr><th>${T('costHeader')}</th>${ranked.map(x=>`<th>${esc(name(x.o))}</th>`).join('')}</tr></thead><tbody>${rows.map(([label,k])=>`<tr><td>${T(label)}</td>${ranked.map(x=>`<td>${chf(x.r[k])}</td>`).join('')}</tr>`).join('')}</tbody></table></div><h4>${T('appliedRates')}</h4><div class="table-wrap"><table><thead><tr><th>${T('shareRate')}</th>${ranked.map(x=>`<th>${esc(name(x.o))}</th>`).join('')}</tr></thead><tbody>${kinds.map(k=>`<tr><td>${T('shareRow',{name:esc(T(k.id)),share:fmt(+k.share,1)})}</td>${ranked.map(x=>`<td>${x.o.model==='icpp'&&k.id!=='twint'?T('markup',{rate:fmt(+x.o.rate,3)}):`${fmt(+x.o.rates[k.id]||0,3)} %`}${+x.o.fixed[k.id]?T('rateFixed',{amount:chf(+x.o.fixed[k.id])}):''}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+  rows.splice(3,0,['twint','twint']);if(M.active())rows.splice(4,0,[M.t('cost'),'cardMarkups']);
+  $('breakdown').innerHTML=`<div class="table-wrap"><table><thead><tr><th>${T('costHeader')}</th>${ranked.map(x=>`<th>${esc(name(x.o))}</th>`).join('')}</tr></thead><tbody>${rows.map(([label,k])=>`<tr><td>${label===M.t('cost')?esc(label):T(label)}</td>${ranked.map(x=>`<td>${chf(x.r[k])}</td>`).join('')}</tr>`).join('')}</tbody></table></div><h4>${T('appliedRates')}</h4><div class="table-wrap"><table><thead><tr><th>${T('shareRate')}</th>${ranked.map(x=>`<th>${esc(name(x.o))}</th>`).join('')}</tr></thead><tbody>${kinds.map(k=>`<tr><td>${T('shareRow',{name:esc(T(k.id)),share:fmt(+k.share,1)})}</td>${ranked.map(x=>`<td>${x.o.model==='icpp'&&k.id!=='twint'?T('markup',{rate:fmt(+x.o.rate,3)}):`${fmt(+x.o.rates[k.id]||0,3)} %`}${+x.o.fixed[k.id]?T('rateFixed',{amount:chf(+x.o.fixed[k.id])}):''}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+  if(M.active())$('breakdown').innerHTML+=`<h4>${esc(M.t('cost'))}</h4><div class="table-wrap"><table><thead><tr><th>${esc(M.t('title'))}</th>${ranked.map(x=>`<th>${esc(name(x.o))}</th>`).join('')}</tr></thead><tbody>${M.keys.filter(k=>M.number(M.shares[k])>0).map(k=>`<tr><td>${esc(M.t(k))} · ${esc(M.shares[k])} %</td>${ranked.map(x=>{const d=x.r.cardMarkupDetails.find(d=>d.key===k);return `<td>${fmt(d.rate,3)} % · ${chf(d.amount)}</td>`;}).join('')}</tr>`).join('')}</tbody></table></div>`;
   const sampled=[.25,.5,.75,1,1.5,2,3,5].map(k=>Math.max(1000,Math.round(c.volume*k/1000)*1000)),switches=sampled.map(v=>({v,o:[...current].sort((a,b)=>cost(a,c,v).total-cost(b,c,v).total)[0]})).filter((x,i,a)=>!i||x.o!==a[i-1].o);
   $('thresholds').innerHTML=`<p class="subtle">${T('scenarioIntro')}</p><div class="threshold-list">${switches.map(x=>`<div class="threshold"><span>${T('scenarioAt',{volume:chf(x.v)})}</span><strong>${esc((()=>{const sorted=[...current].sort((a,b)=>cost(a,c,x.v).total-cost(b,c,x.v).total);return Math.abs(cost(sorted[1],c,x.v).total-cost(sorted[0],c,x.v).total)<.005?['Gleiche Gesamtkosten','Coûts totaux identiques','Equal total costs','Costi totali uguali'][['de','fr','en','it'].indexOf(I.lang)]:name(x.o);})())}</strong></div>`).join('')}</div><p class="footnote">${T('scenarioNote')}</p>`;
   const mix=kinds.map(k=>`${T(k.id)} ${k.share} %${txMixEnabled?` / ${k.tx} Tx`:''}`).join('; ');
   $('print-basis').textContent=T('printBasis',{volume:chf(c.volume),tx:fmt(c.tx),years:c.years,mix});
   $('limits').textContent=T('breakdownDate',{date:new Intl.DateTimeFormat(I.locale).format(new Date()),demo:demo?T('exampleCaveat'):'',tx:T(txMixEnabled?'transactionActual':'transactionAssumed'),mix:'',ic:usesIc?T('icNote'):'',limits:T('limitations')});
 }
-function refreshLanguage(code){I.setLang(code);I.staticText();$('language-code').textContent=I.lang.toUpperCase();$('language-heading').textContent=T('languageHeading');$('language-trigger').setAttribute('aria-label',T('languageTrigger'));document.querySelector('.language-close').setAttribute('aria-label',T('languageClose'));document.querySelectorAll('[data-language]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.language===I.lang)));$('demo').textContent=T(demo?'demoLoaded':'demoButton');$('mode-help').textContent='';renderMix();renderOffers();calculate();}
+function refreshLanguage(code){I.setLang(code);I.staticText();$('language-code').textContent=I.lang.toUpperCase();$('language-heading').textContent=T('languageHeading');$('language-trigger').setAttribute('aria-label',T('languageTrigger'));document.querySelector('.language-close').setAttribute('aria-label',T('languageClose'));document.querySelectorAll('[data-language]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.language===I.lang)));$('demo').textContent=T(demo?'demoLoaded':'demoButton');$('mode-help').textContent='';renderMix();renderOffers();M.render(offers(),calculate);calculate();}
 const languageTrigger=$('language-trigger'),languageMenu=$('language-menu'),languageClose=document.querySelector('.language-close');
 function closeLanguage(restoreFocus=false){languageMenu.hidden=true;languageTrigger.setAttribute('aria-expanded','false');document.body.classList.remove('language-open');languageMenu.setAttribute('aria-modal','false');if(restoreFocus)languageTrigger.focus();}
 function openLanguage(){languageMenu.hidden=false;languageTrigger.setAttribute('aria-expanded','true');document.body.classList.add('language-open');languageMenu.setAttribute('aria-modal',String(matchMedia('(max-width: 600px)').matches));languageMenu.querySelector('[aria-pressed="true"]').focus();}
@@ -95,7 +96,7 @@ $('demo').onclick=()=>{
   o.fixed=Object.fromEntries(groups.map(g=>[g,'0']));o.terminals='1';
   o.rates.mcDebit=String(base);o.rates.visaDebit=String(base);o.rates.credit=String(base+0.2);o.rates.twint='1.25';o.rates.other='0';o.rate='0.45';o.rent='25';
  }
- demo=true;renderMix();renderOffers();calculate();$('demo').textContent=T('demoLoaded');
+ demo=true;renderMix();renderOffers();M.render(offers(),calculate);calculate();$('demo').textContent=T('demoLoaded');
 };
 
 ['volume','tx'].forEach(id=>$(id).addEventListener('input',e=>{const input=e.target,before=input.value.slice(0,input.selectionStart).replace(/\D/g,'').length,digits=input.value.replace(/\D/g,'');input.value=digits.replace(/\B(?=(\d{3})+(?!\d))/g,'’');let pos=0,seen=0;while(pos<input.value.length&&seen<before){if(/\d/.test(input.value[pos]))seen++;pos++;}input.setSelectionRange(pos,pos);calculate();}));
@@ -104,8 +105,9 @@ $('demo').onclick=()=>{
 $('tx-mix-toggle').onchange=e=>{txMixEnabled=e.target.checked;$('tx-mix').hidden=!txMixEnabled;calculate();};
 window.PCCCalculator={refresh:calculate,
 
+ clearCompetitorMarkups(){competitor.cardMarkup=M.make();M.render(offers(),calculate);calculate();},
  reset(){location.reload();},
- snapshot(){const c=context();return {ready:!$('print').disabled,demo,volume:c.volume,tx:c.tx,years:c.years,txMixEnabled,transactions:Object.fromEntries(kinds.map(k=>[k.id,txMixEnabled?+k.tx:c.tx*(+k.share)/100])),mode,results:c.volume>0&&c.tx>0&&c.mixValid&&offers().every(validOffer)?offers().map(o=>({name:name(o),provider:o===competitor?'competitor':'Nexi',...cost(o,c)})):[],
+ snapshot(){const c=context();return {ready:calculationReady,demo,volume:c.volume,tx:c.tx,years:c.years,txMixEnabled,transactions:Object.fromEntries(kinds.map(k=>[k.id,txMixEnabled?+k.tx:c.tx*(+k.share)/100])),mode,cardFeatures:M.snapshot(offers()),results:calculationReady?offers().map(o=>({name:name(o),provider:o===competitor?'competitor':'Nexi',...cost(o,c)})):[],
  mix:Object.fromEntries(kinds.map(k=>[k.id,+k.share])),
  assumptions:Object.fromEntries(kinds.filter(k=>k.id!=='twint').map(k=>[k.id,{ic:num(k.ic),scheme:num(k.scheme)}])),
  offers:offers().map(o=>({...o,name:name(o),provider:o===competitor?'competitor':'Nexi',rates:Object.fromEntries(groups.map(g=>[g,o.rates[g]===''?null:+o.rates[g]])),fixed:Object.fromEntries(groups.map(g=>[g,+o.fixed[g]])),...Object.fromEntries(['rate','rent','terminals','monthly','annual','setup','minimum','surcharge'].map(k=>[k,o[k]===''?(k==='rate'?null:0):+o[k]]))}))};}
