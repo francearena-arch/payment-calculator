@@ -1,4 +1,4 @@
-# Nexi Payment Calculator 5.5.7
+# Nexi Payment Calculator 5.5.8
 
 Stateless browser calculator for one Nexi offer against one competitor offer. Each side independently supports Split Blend or IC++. DE/FR/EN/IT UI and PDF output are supported.
 
@@ -141,6 +141,6 @@ Equal 12px disclosure headings, centered tile content and single aligned logo ro
 
 Calculation visibility depends on valid inputs, independently of the pricing acknowledgement. Valid manual edits immediately update annual costs, ranking, difference and status icon. Pricing acknowledgement is still invalidated on edits and required for exports (except untouched examples). Missing/invalid rates, transaction mixes or required annual minimum-fee top-ups continue to block the result.
 
-## 5.5.7 export without acknowledgement gate
+## 5.5.8 export without acknowledgement gate
 
 PDF creation stays actionable after manual edits, regardless of the optional pricing acknowledgement. Validation runs on click: incomplete/invalid comparisons cannot produce or send a misleading PDF. A valid click always attempts automatic PDF+JSON email delivery before opening the local PDF. The button is disabled only while an export/send is running, to prevent duplicate concurrent submissions. The acknowledgement remains accurately recorded as true/false in exports.
