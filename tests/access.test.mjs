@@ -1,8 +1,0 @@
-import test from 'node:test';import assert from 'node:assert/strict';import {makeHandler} from '../api/service.js';
-process.env.SUPABASE_URL='https://example.supabase.co';process.env.SUPABASE_SECRET_KEY='test';process.env.APP_URL='https://pcc.example';
-const run=async(action,profile={active:true,is_admin:false,user_id:'u'},auth=true)=>{let touched=[];const db={auth:{getUser:async()=>({data:{user:auth?{id:'u',email_confirmed_at:'2026-01-01'}:null},error:auth?null:Error('no')})},from:table=>{touched.push(table);return {select:()=>({eq:()=>({single:async()=>({data:profile,error:null})})})}}};const req={method:'POST',headers:{origin:'https://pcc.example',authorization:'Bearer test'},body:{action}};const res={code:200,setHeader(){},status(n){this.code=n;return this;},json(d){this.body=d;return this;}};await makeHandler(()=>db)(req,res);return {...res,touched};};
-test('regular user denied every privileged action before data operation',async()=>{for(const action of ['users','invite','suspend','restore','deleteUser','report','review']){const r=await run(action);assert.equal(r.code,403);assert.deepEqual(r.touched,['pcc_profiles']);}});
-test('suspended user with still valid JWT denied before cases read',async()=>{const r=await run('cases',{active:false,is_admin:false,user_id:'u'});assert.equal(r.code,403);assert.deepEqual(r.touched,['pcc_profiles']);});
-test('unauthenticated requests never query profiles',async()=>{const r=await run('report',null,false);assert.equal(r.code,401);assert.deepEqual(r.touched,[]);});
-
-test('admin privileged data requires verified second-factor assurance',async()=>{const r=await run('report',{active:true,is_admin:true,user_id:'u'});assert.equal(r.code,403);assert.deepEqual(r.touched,['pcc_profiles']);});

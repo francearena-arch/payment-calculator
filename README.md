@@ -1,62 +1,146 @@
-# Proposition & Competition Comparator
-## 4.2.0-rc.1 — management reporting release candidate
-Built from the supplied v3.5.0 pilot. This is NOT a production sign-off: actual Supabase/Vercel configuration, invitations, SMTP, RLS and user access must be tested on the configured project before real use.
+# Nexi Payment Calculator 5.5.10
 
-## Update existing installation
-Read `START_HIER.md` first. Run `supabase/02_reporting_upgrade.sql` only if the 4.1 industry migration has not yet been installed. Do not rerun the initial setup on an existing project. Reporting methodology: `REPORT_LOGIC.md`.
+Stateless browser calculator for one Nexi offer against one competitor offer. Each side independently supports Split Blend or IC++. DE/FR/EN/IT UI and PDF output are supported.
 
-## Included
-- Existing DE/FR/EN/IT calculator and merchant print-to-PDF, neutral application branding.
-- Admin TOTP MFA enrollment and verification; privileged server operations require aal2.
-- Email/password login; invitation/recovery password setup; no registration UI.
-- Required sales channel per comparison: Remote Sales, Field Sales, Key Account. Purpose: acquisition/retention.
-- Listed competitors + Other with competitor-name field. No customer fields or quote attachments.
-- One competitor against 1–3 manually named Nexi propositions. Existing internal comparisons remain local.
-- Explicit real-quote submission, checked mix and offer date required. Demo-loaded comparisons must restart before submitting. This is an attestation plus admin review, not proof of authenticity.
-- Submitted competitor and Nexi pricing, mix assumptions and turnover band stored. Exact merchant turnover and transaction count are not stored. Names must describe propositions only.
-- Admin: invitations, suspension, permanent user deletion; admin accounts protected from app deletion/suspension.
-- Admin Reporting: pending review, approved library, filters, grouped monthly observations, indicative reference costs and PDF via browser print.
-- Own retention outcome form: actual offered proposition, open/retained/lost. No merchant identifiers.
-- Nexi logo only inside reporting; competitor assets where available; fallback provider label.
+## Behaviour
 
-## Deliberately not configured yet
-- Scheduled monthly email and attachment delivery (recipient, schedule and SMTP/transactional provider outstanding).
-- Centrally managed proposition templates (names/prices not supplied).
-- Operational monitoring and independent backup/restore test.
-- Native generated downloadable PDF file: current reports use browser Print → Save as PDF.
+- No login, Supabase client, database, analytics, case history or reporting.
+- Customer name, optional Salesforce Account/Opportunity references, channel, purpose, industry, competitor and quote date are captured in memory only.
+- Customer name, channel, purpose, competitor and valid calculation are required for export. Industry, Salesforce IDs and quote date are optional.
+- PDF creation downloads a real PDF and automatically posts exactly those PDF bytes and the matching JSON snapshot to the mail function. No separate send action or pre-send notice. A delivery error is shown without preventing download.
+- JSON export includes schema/calculator version, comparison UUID, timestamp, customer/context fields, volume, transactions, separate transaction mix, assumptions, raw offer values and full annual result breakdowns. Unchanged exports share the timestamp/ID. Map this schema to the existing Salesforce importer; actual Salesforce acceptance has not been tested here.
+- Reset clears the page. No localStorage, sessionStorage or IndexedDB is used. Back-forward cache restoration triggers reset.
+- Unknown inactive rates remain null in JSON, not zero. PDF denotes these with a dash. IC and mix examples are shown as placeholders only until explicitly entered or loaded.
 
-## Installation — step by step
-1. Supabase `payment-calculator` → SQL Editor → New query. Paste `supabase/01_setup.sql` and run ONCE. Confirm no error. The script creates only `pcc_*` tables; it does not modify Bodyplan. Authenticated and anonymous clients have no direct table permissions; server APIs authorize every request.
-2. Keep public signup and anonymous sign-in disabled; email provider and email confirmation enabled.
-3. Upload the contents of this release to the GitHub repository root. Do not upload node_modules, dist, .env or secrets. Keep package-lock.json.
-4. Import repository into Vercel. Framework preset Other; build `npm run build`, output `dist`, install `npm ci`. APIs deploy from root `api/`.
-5. Vercel environment variables: SUPABASE_URL (project URL), SUPABASE_SECRET_KEY (Supabase server secret OR legacy service_role key, ONLY here), APP_URL (exact HTTPS production origin, no trailing slash). Redeploy after changes. See `.env.example`; it contains no secret.
-6. Supabase Authentication → URL Configuration: Site URL = APP_URL. Add APP_URL + `/` and APP_URL + `/?flow=recovery` to allowed redirects. Custom SMTP is required for dependable invitations/recovery beyond Supabase's default restricted test email service. Configure strong password requirements (at least 12 characters).
-7. After deployment, Authentication → Users → Add user → Send invitation: invite france.arena@googlemail.com and francesco.arena@nexigroup.com. Normal accounts start inactive and are activated explicitly by the app administrator invitation endpoint (or Restore access). Dashboard-created normal users must be activated separately. This prevents accidental open signup from granting application access. The SQL trigger assigns admin role only to these initial email identities, not from user-editable metadata. Invitation opens the password setup in the app. Never create roles through frontend metadata.
-8. Log in as admin. Invite a test user from Access. Test all checklist items below BEFORE pilot.
-9. Choose an appropriate Vercel plan for business use. Supabase Free can pause low-activity projects; it is not a production availability guarantee.
+## Netlify deployment
 
-## Acceptance checklist (live configuration required)
-- Uninvited signup rejected by Supabase, including direct SDK request.
-- Both admins can sign in; invited normal user sees no Reporting/Access.
-- Normal user calling report/users/invite/review endpoints receives 403.
-- Anonymous publishable-key table reads/writes denied; authenticated direct reads/writes denied.
-- Suspended already-logged-in user cannot read/write through API, even with an unexpired token.
-- Invite, password setup, forgotten-password email and re-login work on real destination URL.
-- Real submission saved pending; double click/retry cannot create a second record with same request ID.
-- Demo blocked; missing date/channel/mix confirmation blocked; Other requires competitor name.
-- Reviewer inspects all rates and assumptions before approval. Rejected entries not in benchmarks.
-- Retention outcome stored for correct owner only. User deletion retains quotes with owner_id null.
-- DE/FR/EN/IT switch, mobile keyboard/forms and both PDF layouts checked on target devices.
+Connect this repository to Netlify. `netlify.toml` sets build command `npm run build`, publish directory `dist` and function directory `netlify/functions`. Node 22+.
 
-## Financial scope
-The original indicative calculator cost formula is preserved. Percentage fees apply to turnover shares; per-payment amounts use separate transaction counts if entered, otherwise turnover shares. Card IC++ uses entered interchange/scheme percentage estimates; TWINT separate. Scheme fixed fees, refunds/chargebacks, card region/product mix, taxes and card-specific minimum charges are not comprehensively modeled. Monthly minimum excludes TWINT under the original formula: verify quote terms.
+Create these runtime environment variables in the Netlify UI (not in Git):
 
-Reporting reference profile: CHF 500,000/year, 10,000 payments/year, 30% Debit MC, 30% Visa Debit, 25% Credit, 15% TWINT, 0% Other. Setup costs included fully in first year. Card IC++ assumptions: debit interchange .20% + scheme .12%; credit .40% + .15%; other 1.50% + .70%. These are illustrative, not sourced live rates. Comparison results are not underwriting/pricing authority.
+- `RESEND_API_KEY`: sending-enabled Resend key (secret).
+- `MAIL_FROM`: `onboarding@resend.dev` for initial testing.
+- `MAIL_TO`: the exact verified Resend account email for testing with the resend.dev sender.
 
-Library snapshots preserve the entered assumptions for review. Benchmark reference assumptions are held constant across dates to avoid fictitious fee trends. Groups for monthly competitor observation: month/provider/channel/turnover band/model. No trend claim below five quotes, and none are representative market statistics. Nexi overall reference summary covers options, not independent quotes. Observed retention is based on approved closed cases and is not causal evidence.
+Current test setup agreed with owner: MAIL_TO=france.arena@googlemail.com. Later destination: francesco.arena@nexigroup.com, then a shared mailbox. A resend.dev test sender only sends to the account address. Verify an authorised sender domain before sending to arbitrary recipients. No mail destination is hard-coded; change MAIL_TO then redeploy. No Supabase variables are needed.
 
-Server report read capped at 5,000 rows with visible warning. Before this cap is approached, implement paginated/server-aggregated reporting. No automatic global collection of local comparisons.
+Resend endpoint: `/api/send-pdf`. It allows POST multipart uploads only from configured Netlify deployment origins (`URL`, `DEPLOY_PRIME_URL`, `DEPLOY_URL`), limits size, validates PDF signature/hash, and fixes sender/recipient server-side. Netlify rate limiting permits five requests per minute per IP/domain; ensure this rule is active on your plan after deployment. Same-origin checks are browser protection, not authentication. Public URL access is intentional. Apply additional platform controls if needed for business rollout.
 
-## Development
-Node 22+; `npm ci`, `npm run build`, `npm test`. Unit tests cover indicative formulas, strict payload allowlisting and authorization denials. Browser integration tests (mocked auth/server) are in tests/browser-check.mjs; run separately after installing Playwright Chromium. Real services still need the acceptance checklist.
+Resend idempotency keys derive from comparison ID and the hash of both PDF and JSON bytes. Retrying unchanged data uses the same key within the provider's idempotency window. Accepted means handed to Resend, not confirmed inbox delivery. `/api/mail-status` checks a signed, short-lived receipt and only reports delivery when the provider confirms it. A sending-only API key may not permit status reads; this remains unconfirmed rather than falsely delivered. Provider errors are not logged with customer data. Host and mail-provider operational logs/retention are outside the calculator's no-database design.
+
+## Local verification
+
+```
+npm ci
+npm test
+npm run build
+python3 -m http.server 8765 --directory dist
+# In another terminal:
+npx playwright install chromium
+npm run test:browser
+```
+
+The browser tests mock mail delivery and do not send email. They verify exports, four languages, pricing fixtures, reset, mobile and mail-failure handling. Inspect generated `test-output` PDFs manually or with Poppler. Live Netlify mail delivery and Salesforce import require separate end-to-end checks.
+
+PDF uses embedded standard Helvetica with Western European encoding. Unsupported characters outside that encoding are replaced with `?`; original strings are preserved in JSON. Monthly/transaction minimums are recorded but are not extrapolated from annual averages. A confirmed annual minimum-fee top-up is required when a contractual minimum is entered. Terminal quantities and first-year one-off costs are included. This is an indicative comparison, not a binding quotation.
+
+## Removed
+
+Supabase Auth/API/schema scripts, invitation/user management, reporting library, internal-only comparison modes, persisted retention workflow, Vercel config and duplicate legacy root frontend files. This code change does not delete an existing Supabase project or historical data at the provider.
+
+## 5.1 interface update
+
+Payment Calculator title; simplified context; Frontbook and Retention labels; Credit, ASF and Scheme Fee terminology; Competitor auswählen / Competitor Angebot in German; no numbered offer labels. The mix confirmation badge, checkbox and confirmation claims are removed. Calculations use exactly one year and include one-off setup costs in full. JSON retains oneOffCostYears=1 and no longer exports mixConfirmed, so it cannot imply a user confirmation. Example loading seeds ASF 0.45% and monthly terminal rent CHF 25 on both sides, including when switching pricing models.
+
+## 5.2 empty form and placeholders
+
+The headline is Vergleichsrechner and the annual transaction field unit is TRX. All manual text/number inputs start empty with localised gray example placeholders; the quote date stays empty and dropdowns remain unselected. No placeholder value participates in calculations or exports. Optional empty cost fields and terminal quantity export as zero; positive terminal rent requires an explicit positive integer terminal quantity. Offer names and active rates are required. IC and Scheme Fee inputs are required only for active card types when at least one IC++ offer is selected. Loading the example fills payment volumes, mix, IC/Scheme Fee assumptions, offer names, rates and optional costs explicitly. Reset restores the empty form. The three section number badges are removed.
+
+## 5.2.1 icon release
+
+Replaces the P/C mark with the approved solid white calculator, purple details and gradient tile. Tile: 46 px; inner symbol canvas: 41 px. Uses the same local vector asset as the browser favicon. No external icon request or added runtime dependency.
+
+## 5.2.2 calculation defaults
+Initial and reset forms use editable payment mix (30/30/25/15/0), Interchange and Scheme Fee assumptions. All other manual fields remain empty. These assumptions are used directly in calculations and exports.
+
+## 5.2.3 complete example and competitor palette
+Example loading fills missing customer context, Salesforce example references, channel, purpose, industry, competitor and quote date so a fresh form immediately shows a recommendation. Existing context values are preserved. Competitor card uses pale pink and coral accents with white inputs.
+
+## 5.2.4 offer palettes
+Nexi card uses lavender with purple accents and a white-on-purple tag. Competitor tag is white on #C00000; competitor card text and controls use #C00000. Inputs remain white.
+
+## 5.2.5 field captions
+Competitor field captions are black. Red accents, input values, units and the white-on-red provider tag are retained.
+
+## 5.2.6 annual price difference
+Highlights the absolute annual price difference from the Nexi perspective. White circular status shows a green tick for lower Nexi cost, red cross for higher cost, and neutral equals for equal cost (below CHF 0.005 difference). Includes all four UI languages and responsive layout.
+
+## 5.2.7 centered status symbols
+Replaces font glyphs with larger centered check and cross shapes matching the approved preview. Existing circle sizes, colors and conditional logic remain unchanged.
+
+## 5.2.8 seamless check
+Uses a single continuous SVG stroke with round joins for the green check, eliminating the CSS border seam. Circle, color and icon dimensions are retained.
+
+## 5.2.9 result labels and cleanup
+Removes the service/terminal advice block and bottom footer. Result provider labels follow the selected competitor or manually entered Other provider, escaped as text.
+
+## 5.3.0 payment mix and responsive fields
+Equal responsive payment mix tiles include local brand logos from activemerchant/payment_icons (license in public/payment-logos). Salesforce references use Optional placeholders; ticket amount label shortened. Removes merchant-check sentence from mix preview. Constrains date and context inputs to their grid cells, including WebKit date presentation.
+
+## 5.3.1 input logos and actions
+Moves Example loading to the page headline. Adds local logo tiles immediately before editable payment mix shares. JSON and New comparison are equal filled buttons in two responsive columns.
+
+## 5.3.2 export wording and audit
+Renames the export button to JSON-Datei herunterladen (localized). See docs/AUDIT-2026-10-31.md for the model audit, tariff gaps and reproduced validation defects. No pricing assumptions changed. Numerical reproduction: node tests/audit-calculation.mjs with a local dist server.
+
+
+## 5.4.0 optional card characteristics
+
+Adds explicit contractual card markups, independently selected for each offer, to annual costs, the recommendation, scenarios, PDF and JSON. The section starts collapsed and blank. See [release rules and validation](docs/RELEASE-5.4.0.md). JSON schema is 1.1.0; existing result keys remain, with `cardMarkups` and itemised details added.
+
+Public competitor pricing research is documented in [the tariff review](docs/COMPETITOR-TARIFF-RESEARCH-2026-10-31.md). No unconfirmed competitor defaults are applied.
+
+
+## 5.5.0 controlled Sales pilot
+
+- Strict money/count parsing preserves CHF cents, rejects negatives, ambiguous grouping, exponent notation and unsafe amounts.
+- Explicit transaction counts must match both totals and active turnover categories.
+- Real comparisons require confirmation of both quotes and cost assumptions; changes invalidate it. Unmodified examples remain available immediately and are clearly recorded as examples.
+- Optional, per-offer IC/Scheme percentages and fixed CHF transaction fees are supported. EUR components require a confirmed conversion before entry. No unknown issuer/channel mix is inferred.
+- Contract minima require a confirmed annual top-up (including explicit 0); the old annual-minimum approximation has been removed. Changes invalidate that top-up; volume scenarios are suppressed for minimum-fee cases.
+- Worldline presence-business 02/2024 is an opt-in contract-confirmed reference profile, not a claim that every current Worldline contract uses those rates. Unsupported token markup remains unknown and blocks that profile for a positive token share.
+- PDF email retries reuse the exact PDF bytes and idempotency key. Temporary provider errors are retried; configuration restrictions have actionable errors. Delivery checks never equate acceptance with delivery.
+
+See [pilot verification and remaining gates](docs/RELEASE-5.5.0.md). The interface keeps advanced inputs collapsed. Pricing sign-off and real mail delivery are operational gates, not proven by unit tests.
+
+### Mail setup and diagnosis
+
+On Netlify, configure `RESEND_API_KEY`, `MAIL_FROM`, and `MAIL_TO` in **Functions** scope for the actual deploy context, then redeploy. Values in netlify.toml alone are not function secrets. A verified sender domain is needed for arbitrary company recipients; `onboarding@resend.dev` is restricted to the Resend account's permitted testing address. Preserve the previously agreed testing destination until the owner confirms a company mailbox.
+
+The configured key must allow sending. Status verification additionally needs permission to retrieve sent emails. `MAIL_ALLOWED_ORIGINS` optionally supplies extra comma-separated canonical origins; the function also verifies the actual request origin and configured Netlify origins. No secret is included in the browser bundle.
+
+A successful send response includes a provider email ID and a 10-minute signed receipt. The browser checks delivery without exposing recipients or mail contents. A delivered event confirms the receiving mail server accepted it; it does not prove inbox placement or that anyone read it. No persistent mail queue or guaranteed recovery after closing the browser is claimed.
+
+## 5.5.1 mail attachments
+
+Each PDF email includes the exact JSON export snapshot (schema 1.2.0) with matching comparison ID and creation timestamp. The subject uses customer name and the snapshot creation date in Europe/Zurich: `Angebotsvergleich – Muster AG – 31.10.2026`. JSON is limited to 250 KB and validated for comparison ID, schema, currency and required metadata before sending. Retry reuses both original attachments; changing either attachment changes the idempotency key. Client data cannot override sender or recipient. The uploaded JSON remains user-supplied comparison data, not a server-certified calculation.
+
+Live PDF-only test on 31 October 2026 was received and opened by the owner. This confirms delivery to the configured Googlemail testing recipient, not rollout to company/shared mailboxes.
+
+Current test sender: `Payment Calculator <paymentcalculator@resend.dev>`; accepted by Resend in a live PDF+JSON preview test on 31 October 2026. This does not remove resend.dev testing-recipient restrictions or constitute a dedicated mailbox.
+
+## 5.5.2 PDF navigation ordering
+
+The automatic mail request now completes (accepted or failed) before the browser opens/downloads the local PDF. This avoids a PDF viewer navigation cancelling the subsequent fetch on browsers such as mobile Safari. Mail failure still permits the local PDF download and offers retry on return to the calculator. No inbox confirmation is inferred from local PDF creation or provider acceptance.
+
+## 5.5.3 payment mix layout
+
+Equal 12px disclosure headings, centered tile content and single aligned logo rows. Preview recipient restored to france.arena@googlemail.com; company mailbox delivery deferred until an authorised sender domain is verified.
+
+## 5.5.6 live recommendation
+
+Calculation visibility depends on valid inputs, independently of the pricing acknowledgement. Valid manual edits immediately update annual costs, ranking, difference and status icon. Pricing acknowledgement is still invalidated on edits and required for exports (except untouched examples). Missing/invalid rates, transaction mixes or required annual minimum-fee top-ups continue to block the result.
+
+## 5.5.10 export without acknowledgement gate
+
+PDF creation stays actionable after manual edits, regardless of the optional pricing acknowledgement. Validation runs on click: incomplete/invalid comparisons cannot produce or send a misleading PDF. A valid click always attempts automatic PDF+JSON email delivery before opening the local PDF. The button is disabled only while an export/send is running, to prevent duplicate concurrent submissions. The acknowledgement remains accurately recorded as true/false in exports.
