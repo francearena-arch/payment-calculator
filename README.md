@@ -1,4 +1,4 @@
-# Nexi Payment Calculator 5.5.0
+# Nexi Payment Calculator 5.5.1
 
 Stateless browser calculator for one Nexi offer against one competitor offer. Each side independently supports Split Blend or IC++. DE/FR/EN/IT UI and PDF output are supported.
 
@@ -7,7 +7,7 @@ Stateless browser calculator for one Nexi offer against one competitor offer. Ea
 - No login, Supabase client, database, analytics, case history or reporting.
 - Customer name, optional Salesforce Account/Opportunity references, channel, purpose, industry, competitor and quote date are captured in memory only.
 - Customer name, channel, purpose, competitor and valid calculation are required for export. Industry, Salesforce IDs and quote date are optional.
-- PDF creation downloads a real PDF and automatically posts exactly those PDF bytes to the mail function. No separate send action or pre-send notice. A delivery error is shown without preventing download.
+- PDF creation downloads a real PDF and automatically posts exactly those PDF bytes and the matching JSON snapshot to the mail function. No separate send action or pre-send notice. A delivery error is shown without preventing download.
 - JSON export includes schema/calculator version, comparison UUID, timestamp, customer/context fields, volume, transactions, separate transaction mix, assumptions, raw offer values and full annual result breakdowns. Unchanged exports share the timestamp/ID. Map this schema to the existing Salesforce importer; actual Salesforce acceptance has not been tested here.
 - Reset clears the page. No localStorage, sessionStorage or IndexedDB is used. Back-forward cache restoration triggers reset.
 - Unknown inactive rates remain null in JSON, not zero. PDF denotes these with a dash. IC and mix examples are shown as placeholders only until explicitly entered or loaded.
@@ -26,7 +26,7 @@ Current test setup agreed with owner: MAIL_TO=france.arena@googlemail.com. Later
 
 Resend endpoint: `/api/send-pdf`. It allows POST multipart uploads only from configured Netlify deployment origins (`URL`, `DEPLOY_PRIME_URL`, `DEPLOY_URL`), limits size, validates PDF signature/hash, and fixes sender/recipient server-side. Netlify rate limiting permits five requests per minute per IP/domain; ensure this rule is active on your plan after deployment. Same-origin checks are browser protection, not authentication. Public URL access is intentional. Apply additional platform controls if needed for business rollout.
 
-Resend idempotency keys derive from comparison ID and PDF hash. Retrying unchanged data uses the same key within the provider's idempotency window. Accepted means handed to Resend, not confirmed inbox delivery. `/api/mail-status` checks a signed, short-lived receipt and only reports delivery when the provider confirms it. A sending-only API key may not permit status reads; this remains unconfirmed rather than falsely delivered. Provider errors are not logged with customer data. Host and mail-provider operational logs/retention are outside the calculator's no-database design.
+Resend idempotency keys derive from comparison ID and the hash of both PDF and JSON bytes. Retrying unchanged data uses the same key within the provider's idempotency window. Accepted means handed to Resend, not confirmed inbox delivery. `/api/mail-status` checks a signed, short-lived receipt and only reports delivery when the provider confirms it. A sending-only API key may not permit status reads; this remains unconfirmed rather than falsely delivered. Provider errors are not logged with customer data. Host and mail-provider operational logs/retention are outside the calculator's no-database design.
 
 ## Local verification
 
@@ -120,3 +120,9 @@ On Netlify, configure `RESEND_API_KEY`, `MAIL_FROM`, and `MAIL_TO` in **Function
 The configured key must allow sending. Status verification additionally needs permission to retrieve sent emails. `MAIL_ALLOWED_ORIGINS` optionally supplies extra comma-separated canonical origins; the function also verifies the actual request origin and configured Netlify origins. No secret is included in the browser bundle.
 
 A successful send response includes a provider email ID and a 10-minute signed receipt. The browser checks delivery without exposing recipients or mail contents. A delivered event confirms the receiving mail server accepted it; it does not prove inbox placement or that anyone read it. No persistent mail queue or guaranteed recovery after closing the browser is claimed.
+
+## 5.5.1 mail attachments
+
+Each PDF email includes the exact JSON export snapshot (schema 1.2.0) with matching comparison ID and creation timestamp. The subject uses customer name and the snapshot creation date in Europe/Zurich: `Angebotsvergleich – Muster AG – 31.10.2026`. JSON is limited to 250 KB and validated for comparison ID, schema, currency and required metadata before sending. Retry reuses both original attachments; changing either attachment changes the idempotency key. Client data cannot override sender or recipient. The uploaded JSON remains user-supplied comparison data, not a server-certified calculation.
+
+Live PDF-only test on 31 October 2026 was received and opened by the owner. This confirms delivery to the configured Googlemail testing recipient, not rollout to company/shared mailboxes.
