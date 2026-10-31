@@ -41,3 +41,9 @@ test('500 independent randomized monetary checks for each fee component and scal
   assert.ok(Math.abs(M.cost(nexi,v).cardMarkups-expected)<1e-7);assert.ok(Math.abs(M.cost(nexi,v*2).cardMarkups-expected*2)<2e-7);
  }
 });
+
+test('Worldline reference profile is provider/model restricted; missing token tariff is unknown rather than zero',()=>{
+ const {M,kinds,offers,nexi,competitor}=fixture();Object.assign(M.shares,{intra:'10',inter:'5',commercial:'3'});nexi.cardMarkup.mode='included';competitor.selectedProvider='Worldline';competitor.cardMarkup.mode='worldline';
+ assert.equal(M.validate(kinds,offers).valid,true);assert.equal(M.cost(competitor,500000).cardMarkups,1010);assert.equal(M.snapshot(offers).offers[1].rates.debitToken,null);assert.equal(M.snapshot(offers).offers[1].tariff,'Worldline-CH-presence-2024-02');
+ M.shares.debitToken='1';assert.equal(M.validate(kinds,offers).valid,false);M.shares.debitToken='';competitor.selectedProvider='Stripe';assert.equal(M.validate(kinds,offers).valid,false);assert.equal(M.cost(competitor,500000).cardMarkups,0);
+});

@@ -1,4 +1,4 @@
-# Nexi Payment Calculator 5.4.0
+# Nexi Payment Calculator 5.5.0
 
 Stateless browser calculator for one Nexi offer against one competitor offer. Each side independently supports Split Blend or IC++. DE/FR/EN/IT UI and PDF output are supported.
 
@@ -26,7 +26,7 @@ Current test setup agreed with owner: MAIL_TO=france.arena@googlemail.com. Later
 
 Resend endpoint: `/api/send-pdf`. It allows POST multipart uploads only from configured Netlify deployment origins (`URL`, `DEPLOY_PRIME_URL`, `DEPLOY_URL`), limits size, validates PDF signature/hash, and fixes sender/recipient server-side. Netlify rate limiting permits five requests per minute per IP/domain; ensure this rule is active on your plan after deployment. Same-origin checks are browser protection, not authentication. Public URL access is intentional. Apply additional platform controls if needed for business rollout.
 
-Resend idempotency keys derive from comparison ID and PDF hash. Retrying unchanged data uses the same key within the provider's idempotency window. Accepted means handed to Resend, not confirmed inbox delivery. Provider errors are not logged with customer data. Host and mail-provider operational logs/retention are outside the calculator's no-database design.
+Resend idempotency keys derive from comparison ID and PDF hash. Retrying unchanged data uses the same key within the provider's idempotency window. Accepted means handed to Resend, not confirmed inbox delivery. `/api/mail-status` checks a signed, short-lived receipt and only reports delivery when the provider confirms it. A sending-only API key may not permit status reads; this remains unconfirmed rather than falsely delivered. Provider errors are not logged with customer data. Host and mail-provider operational logs/retention are outside the calculator's no-database design.
 
 ## Local verification
 
@@ -42,7 +42,7 @@ npm run test:browser
 
 The browser tests mock mail delivery and do not send email. They verify exports, four languages, pricing fixtures, reset, mobile and mail-failure handling. Inspect generated `test-output` PDFs manually or with Poppler. Live Netlify mail delivery and Salesforce import require separate end-to-end checks.
 
-PDF uses embedded standard Helvetica with Western European encoding. Unsupported characters outside that encoding are replaced with `?`; original strings are preserved in JSON. Cost logic is retained from the pilot, including annual card minimums, terminal quantities and annualised one-off costs. This is an indicative comparison, not a binding quotation.
+PDF uses embedded standard Helvetica with Western European encoding. Unsupported characters outside that encoding are replaced with `?`; original strings are preserved in JSON. Monthly/transaction minimums are recorded but are not extrapolated from annual averages. A confirmed annual minimum-fee top-up is required when a contractual minimum is entered. Terminal quantities and first-year one-off costs are included. This is an indicative comparison, not a binding quotation.
 
 ## Removed
 
@@ -99,3 +99,24 @@ Renames the export button to JSON-Datei herunterladen (localized). See docs/AUDI
 Adds explicit contractual card markups, independently selected for each offer, to annual costs, the recommendation, scenarios, PDF and JSON. The section starts collapsed and blank. See [release rules and validation](docs/RELEASE-5.4.0.md). JSON schema is 1.1.0; existing result keys remain, with `cardMarkups` and itemised details added.
 
 Public competitor pricing research is documented in [the tariff review](docs/COMPETITOR-TARIFF-RESEARCH-2026-10-31.md). No unconfirmed competitor defaults are applied.
+
+
+## 5.5.0 controlled Sales pilot
+
+- Strict money/count parsing preserves CHF cents, rejects negatives, ambiguous grouping, exponent notation and unsafe amounts.
+- Explicit transaction counts must match both totals and active turnover categories.
+- Real comparisons require confirmation of both quotes and cost assumptions; changes invalidate it. Unmodified examples remain available immediately and are clearly recorded as examples.
+- Optional, per-offer IC/Scheme percentages and fixed CHF transaction fees are supported. EUR components require a confirmed conversion before entry. No unknown issuer/channel mix is inferred.
+- Contract minima require a confirmed annual top-up (including explicit 0); the old annual-minimum approximation has been removed. Changes invalidate that top-up; volume scenarios are suppressed for minimum-fee cases.
+- Worldline presence-business 02/2024 is an opt-in contract-confirmed reference profile, not a claim that every current Worldline contract uses those rates. Unsupported token markup remains unknown and blocks that profile for a positive token share.
+- PDF email retries reuse the exact PDF bytes and idempotency key. Temporary provider errors are retried; configuration restrictions have actionable errors. Delivery checks never equate acceptance with delivery.
+
+See [pilot verification and remaining gates](docs/RELEASE-5.5.0.md). The interface keeps advanced inputs collapsed. Pricing sign-off and real mail delivery are operational gates, not proven by unit tests.
+
+### Mail setup and diagnosis
+
+On Netlify, configure `RESEND_API_KEY`, `MAIL_FROM`, and `MAIL_TO` in **Functions** scope for the actual deploy context, then redeploy. Values in netlify.toml alone are not function secrets. A verified sender domain is needed for arbitrary company recipients; `onboarding@resend.dev` is restricted to the Resend account's permitted testing address. Preserve the previously agreed testing destination until the owner confirms a company mailbox.
+
+The configured key must allow sending. Status verification additionally needs permission to retrieve sent emails. `MAIL_ALLOWED_ORIGINS` optionally supplies extra comma-separated canonical origins; the function also verifies the actual request origin and configured Netlify origins. No secret is included in the browser bundle.
+
+A successful send response includes a provider email ID and a 10-minute signed receipt. The browser checks delivery without exposing recipients or mail contents. A delivered event confirms the receiving mail server accepted it; it does not prove inbox placement or that anyone read it. No persistent mail queue or guaranteed recovery after closing the browser is claimed.

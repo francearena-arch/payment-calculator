@@ -15,17 +15,17 @@ const comparisons=await p.evaluate(()=>{
   const o={model:i%2?'icpp':'split',rates:{},fixed:{},rate:rand()*2,rent:rand()*50,terminals:Math.floor(rand()*5),monthly:rand()*30,annual:rand()*200,setup:rand()*500,minimum:rand()*100,surcharge:rand()};
   let cardCost=0,twint=0;
   for(const k of A.kinds){o.rates[k.id]=rand()*3;o.fixed[k.id]=rand()*.2;const volume=v*Number(k.share)/100,n=tx*Number(k.share)/100;if(k.id==='twint')twint=volume*o.rates[k.id]/100+n*o.fixed[k.id];else cardCost+=volume*(o.model==='split'?o.rates[k.id]:o.rate+Number(k.ic)+Number(k.scheme))/100+n*o.fixed[k.id];}
-  const expected=Math.max(cardCost,12*o.minimum)+twint+v*o.surcharge/100+12*o.rent*o.terminals+12*o.monthly+o.annual+o.setup;
+  const expected=cardCost+twint+v*o.surcharge/100+12*o.rent*o.terminals+12*o.monthly+o.annual+o.setup;
   const actual=A.cost(o,c).total;if(Math.abs(actual-expected)>1e-7*Math.max(1,expected))throw Error('Oracle mismatch '+i);count++;
  }return count;
 });
 await p.reload();await p.waitForSelector('#customer-name');await p.locator('#demo').click();
-await p.locator('.offer').first().locator('[data-model=icpp]').click();
+await p.locator('.offer').first().locator('[data-model=icpp]').click();await p.locator('#pricing-confirm').check();
 const sample=await p.evaluate(()=>window.PCCCalculator.snapshot().results[0]);
 assert.equal(sample.acquiring,1912.5);assert.equal(sample.interchange,1100);assert.equal(sample.scheme,547.5);assert.equal(sample.twint,937.5);assert.equal(sample.terminal,300);assert.equal(sample.total,4797.5);
-await p.locator('#volume').fill('500000.50');const decimalVolume=await p.locator('#volume').inputValue();assert.equal(decimalVolume,'50’000’050');
-await p.locator('#demo').click();await p.locator('.offer').first().locator('.cost-details').evaluate(e=>e.open=true);await p.locator('.offer').first().locator('[data-key=terminals]').fill('-1');await p.locator('.offer').first().locator('[data-key=rent]').fill('0');assert.equal(await p.locator('#print').isDisabled(),true);
+await p.locator('#volume').fill('500000.50');const decimalVolume=await p.locator('#volume').inputValue();assert.equal(decimalVolume,'500000.50');
+await p.locator('#demo').click();await p.locator('.offer').first().locator('.cost-details').evaluate(e=>e.open=true);await p.locator('.offer').first().locator('[data-key=terminals]').fill('-1');await p.locator('.offer').first().locator('[data-key=rent]').fill('0');await p.locator('#pricing-confirm').check();assert.equal(await p.locator('#print').isDisabled(),true);
 // Inactive fixed fees are not validated, yet are included when computing zero blocks.
-await p.locator('#demo').click();await p.locator('.offer').first().locator('.secondary-fees').evaluate(e=>e.open=true);await p.locator('.offer').first().locator('[data-key="fixed:other"]').fill('1e308');const inactive=await p.evaluate(()=>window.PCCCalculator.snapshot());
-await p.locator('#demo').click();await p.locator('.extra-settings').evaluate(e=>e.open=true);await p.locator('#tx-mix-toggle').check();await p.locator('[data-tx="0"]').fill('2000');await p.locator('[data-tx="4"]').fill('1000');const explicit=await p.evaluate(()=>window.PCCCalculator.snapshot());assert.equal(explicit.ready,true);
+await p.locator('#demo').click();await p.locator('.offer').first().locator('.secondary-fees').evaluate(e=>e.open=true);await p.locator('.offer').first().locator('[data-key="fixed:other"]').fill('1e308');await p.locator('#pricing-confirm').check();const inactive=await p.evaluate(()=>window.PCCCalculator.snapshot());
+await p.locator('#demo').click();await p.locator('.extra-settings').evaluate(e=>e.open=true);await p.locator('#tx-mix-toggle').check();await p.locator('[data-tx="0"]').fill('2000');await p.locator('[data-tx="4"]').fill('1000');await p.locator('#pricing-confirm').check();const explicit=await p.evaluate(()=>window.PCCCalculator.snapshot());assert.equal(explicit.ready,false);
 const output={comparisons,sample,decimalVolume,explicitZeroVolumePositiveTransactionsAccepted:explicit.ready,explicitTransactions:explicit.transactions,notes:'Oracle verifies the implemented annual model, not contractual tariff completeness.'};await writeFile('test-output/audit-results.json',JSON.stringify(output,null,2));await b.close();console.log(JSON.stringify(output));

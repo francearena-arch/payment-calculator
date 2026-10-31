@@ -284,3 +284,5 @@ input::placeholder{color:#9196a8!important;opacity:1;font-weight:400}input:place
 #card-features-error{color:#b00020;font-size:12px;line-height:1.5}
 #card-features-error:empty{display:none}
 @media(max-width:600px){.card-features .fields{grid-template-columns:1fr}.card-features input,.card-features select{font-size:16px}}
+
+.pricing-confirmation,.quote-mode{display:flex;align-items:flex-start;gap:9px;margin-top:16px;font-size:12px;line-height:1.5}.pricing-confirmation input,.quote-mode input{width:17px!important;height:17px;flex:none;margin:1px 0 0}.quote-assumptions{margin-top:16px;padding-top:12px;border-top:1px solid #dedeee}.quote-assumptions h4{margin:14px 0 8px}input[aria-invalid="true"]{border-color:#b00020!important}.quote-assumptions .fields{grid-template-columns:repeat(2,minmax(0,1fr))}@media(max-width:600px){.quote-assumptions .fields{grid-template-columns:1fr}}
