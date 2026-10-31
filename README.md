@@ -1,4 +1,4 @@
-# Nexi Payment Calculator 5.5.3
+# Nexi Payment Calculator 5.5.4
 
 Stateless browser calculator for one Nexi offer against one competitor offer. Each side independently supports Split Blend or IC++. DE/FR/EN/IT UI and PDF output are supported.
 
