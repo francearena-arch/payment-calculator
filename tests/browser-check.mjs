@@ -19,7 +19,7 @@ assert.equal(await page.locator('.intro h1').innerText(),'Vergleichsrechner');
 assert.equal(await page.locator('#volume').getAttribute('placeholder'),"z.B. 500'000");assert.equal(await page.locator('#tx').getAttribute('placeholder'),"z.B. 10'000");
 assert.equal(await page.locator('#tx ~ b').innerText(),'TRX');
 assert.equal(await page.locator('input:not([type=checkbox]):not([type=date]):not(#mix input):not(#account-id):not(#opportunity-id)').evaluateAll(inputs=>inputs.every(i=>i.value===''&&i.placeholder.startsWith('z.B. '))),true);
-assert.equal(await page.locator('#print').isDisabled(),true);
+assert.equal(await page.locator('#print').isDisabled(),false);
 assert.deepEqual(await page.evaluate(()=>window.PCCCalculator.snapshot().mix),{mcDebit:30,visaDebit:30,credit:25,twint:15,other:0});
 await page.screenshot({path:'test-output/empty-desktop.png',fullPage:true});
 assert.equal(await page.locator('.offer-heading').allTextContents().then(t=>t.join(' ').includes('Option')),false);
@@ -30,11 +30,11 @@ assert.equal(await page.locator('#result').isVisible(),true);assert.equal(await 
 assert.equal(await page.locator('.hero-result').getAttribute('data-price-status'),'cheaper');
 assert.ok((await page.locator('#winner').innerText()).includes('637.50'));assert.equal(await page.locator('.price-status-icon .status-check-vector').count(),1);
 await page.locator('.offer').first().locator('[data-key="rate:mcDebit"]').fill('10');
-// Valid manual changes update the recommendation before pricing confirmation.
+// Valid manual changes update the recommendation and permit export without acknowledgement.
 assert.equal(await page.locator('#result').isVisible(),true);
 assert.equal(await page.locator('.hero-result').getAttribute('data-price-status'),'costlier');
 assert.equal(await page.locator('#pricing-confirm').isChecked(),false);
-assert.equal(await page.locator('#print').isDisabled(),true);
+assert.equal(await page.locator('#print').isDisabled(),false);
 await page.locator('#pricing-confirm').check();
 assert.equal(await page.locator('.hero-result').getAttribute('data-price-status'),'costlier');
 assert.equal(await page.locator('.price-status-icon .status-cross').count(),1);
@@ -76,9 +76,9 @@ for(let i=1;i<5;i++)await page.locator(`[data-key="share:${i}"]`).fill('0');
 await page.locator('[data-key="ic:0"]').fill('');await page.locator('[data-key="scheme:0"]').fill('');
 for(const offer of await page.locator('.offer').all()){await offer.locator('[data-key=name]').fill('Manual offer');await offer.locator('[data-key="rate:mcDebit"]').fill('1.2');}
 await page.locator('#pricing-confirm').check();assert.equal(await page.locator('#print').isDisabled(),false);let manualSnapshot=await page.evaluate(()=>window.PCCCalculator.snapshot());assert.equal(manualSnapshot.results[0].total,1200);assert.equal(manualSnapshot.assumptions.mcDebit.ic,null);assert.equal(manualSnapshot.offers[0].rent,0);assert.equal(manualSnapshot.offers[0].terminals,0);
-await page.locator('.offer').first().locator('[data-key=rent]').fill('25');assert.equal(await page.locator('#print').isDisabled(),true);
+await page.locator('.offer').first().locator('[data-key=rent]').fill('25');assert.equal(await page.locator('#print').isDisabled(),false);
 await page.locator('.offer').first().locator('.cost-details').evaluate(el=>el.open=true);await page.locator('.offer').first().locator('[data-key=terminals]').fill('2');await page.locator('#pricing-confirm').check();assert.equal(await page.locator('#print').isDisabled(),false);assert.equal(await page.evaluate(()=>window.PCCCalculator.snapshot().results[0].total),1800);
-await page.locator('.offer').first().locator('[data-model=icpp]').click();assert.equal(await page.locator('.offer').first().locator('[data-key=rate]').inputValue(),'');assert.equal(await page.locator('#print').isDisabled(),true);
-await page.locator('.offer').first().locator('[data-key=rate]').fill('0.45');assert.equal(await page.locator('#print').isDisabled(),true);await page.locator('[data-key="ic:0"]').fill('0.20');await page.locator('[data-key="scheme:0"]').fill('0.12');await page.locator('#pricing-confirm').check();assert.equal(await page.locator('#print').isDisabled(),false);assert.equal(Math.round(await page.evaluate(()=>window.PCCCalculator.snapshot().results[0].total)),1370);
+await page.locator('.offer').first().locator('[data-model=icpp]').click();assert.equal(await page.locator('.offer').first().locator('[data-key=rate]').inputValue(),'');assert.equal(await page.locator('#print').isDisabled(),false);
+await page.locator('.offer').first().locator('[data-key=rate]').fill('0.45');assert.equal(await page.locator('#print').isDisabled(),false);await page.locator('[data-key="ic:0"]').fill('0.20');await page.locator('[data-key="scheme:0"]').fill('0.12');await page.locator('#pricing-confirm').check();assert.equal(await page.locator('#print').isDisabled(),false);assert.equal(Math.round(await page.evaluate(()=>window.PCCCalculator.snapshot().results[0].total)),1370);
 await page.reload();await page.waitForSelector('#customer-name');assert.equal(await page.locator('input:not([type=checkbox]):not([type=date]):not(#mix input):not(#account-id):not(#opportunity-id)').evaluateAll(inputs=>inputs.every(i=>i.value==='')),true);
 await page.setViewportSize({width:390,height:844});await page.screenshot({path:'test-output/mobile.png',fullPage:true});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);assert.deepEqual(errors,[]);await browser.close();console.log('Browser checks passed: direct access, validation, mixed models, JSON, PDF, four languages, mail failure, reset, mobile.');
