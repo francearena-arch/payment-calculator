@@ -17,3 +17,5 @@ test('status permission or provider failures remain unconfirmed, never delivered
  const response=await makeStatusHandler({env,send:async()=>new Response('{}',{status:403})})(request(receipt(id,env.RESEND_API_KEY)));assert.equal((await response.json()).state,'unknown');
  const forged=await makeStatusHandler({env})(request('forged'));assert.equal(forged.status,403);
 });
+
+test('same-origin browser GET without an Origin header can verify a signed delivery receipt',async()=>{const url=env.URL+'/api/mail-status?'+new URLSearchParams({id,receipt:receipt(id,env.RESEND_API_KEY)});const response=await makeStatusHandler({env,send:async()=>Response.json({last_event:'delivered'})})(new Request(url,{headers:{'sec-fetch-site':'same-origin'}}));assert.equal((await response.json()).state,'delivered');const cross=await makeStatusHandler({env})(new Request(url,{headers:{'sec-fetch-site':'cross-site'}}));assert.equal(cross.status,403);});

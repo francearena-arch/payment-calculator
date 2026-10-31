@@ -27,7 +27,7 @@ Netlify requires Functions-scoped `RESEND_API_KEY`, `MAIL_FROM`, `MAIL_TO` in th
 
 ## Verification completed
 
-- 22 Node tests passed, including 1,500 independent arithmetic cases, decimal/negative/ambiguous parsing, inconsistent transaction mix, minimum gating, independent offer-specific IC/Scheme fees and fixed CHF amounts, Worldline profile applicability, mail retry idempotency, signed receipts and accepted-versus-delivered statuses.
+- 23 Node tests passed, including 1,500 independent arithmetic cases, decimal/negative/ambiguous parsing, inconsistent transaction mix, minimum gating, independent offer-specific IC/Scheme fees and fixed CHF amounts, Worldline profile applicability, mail retry idempotency, signed receipts and accepted-versus-delivered statuses.
 - Browser checks on the local preview: unchanged example CHF 6,587.50; `500000.50` preserved and produces CHF 6,587.51 after explicit confirmation; negative amount rejected; 0%-turnover/1,000-transaction mismatch blocked; monthly minimum requires a confirmed uplift; confirmed CHF220 uplift yields CHF6,807.50; a changed annual volume clears it.
 - Separate quoted IC/Scheme percentages and fixed CHF amounts yield the independently expected CHF4,212.50 total. Worldline 10% intraregional reference surcharge adds CHF490, producing CHF7,715 on its example offer. Actual downloaded JSON matches these values and records source, effective fees and confirmation.
 - PDFs generated in DE/FR/EN/IT from the downloaded JSON. German PDF extracted values and rendered full-page layout reviewed. Cost tables and sources remain legible, without the previous orphaned example note.
