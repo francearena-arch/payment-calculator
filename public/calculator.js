@@ -55,7 +55,7 @@ function calculate(){
   competitor.selectedProvider=$('competitor-provider')?.value||'';
   const c=context(),current=offers(),usesIc=current.some(o=>o.model==='icpp'),markupState=M.validate(kinds,current);$('card-features-error').textContent=markupState.error;document.querySelectorAll('[data-card-provider-label]').forEach(el=>el.textContent=el.dataset.cardProviderLabel==='0'?'Nexi':competitorName());
   $('mix-status').textContent=T('activeShare',{share:fmt(c.share,1)});
-  $('mix-preview').innerHTML=kinds.map(k=>`<div class="mix-tile"><span class="mix-tile-label">${esc(T(k.id))}</span><b>${k.share===''?'–':fmt(+k.share,1)} %</b><div class="mix-logos">${mixLogos[k.id].map(brand=>`<img src="payment-logos/${brand}.svg" alt="${logoNames[brand]}" width="38" height="24">`).join('')}</div></div>`).join('');
+  $('mix-preview').innerHTML=['mcDebit','visaDebit','twint','mcCredit','visaCredit','other'].map(id=>kinds.find(k=>k.id===id)).map(k=>`<div class="mix-tile"><span class="mix-tile-label">${esc(T(k.id))}</span><b>${k.share===''?'–':fmt(+k.share,1)} %</b><div class="mix-logos">${mixLogos[k.id].map(brand=>`<img src="payment-logos/${brand}.svg" alt="${logoNames[brand]}" width="38" height="24">`).join('')}</div></div>`).join('');
   $('mix-error').textContent=c.mixValid?'':T('invalidMix');
   c.txMixValid=true;
   $('ticket').textContent=c.volume>0&&c.tx>0?T('ticket',{value:chf(c.volume/c.tx)}):'';
