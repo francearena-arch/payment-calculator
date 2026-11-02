@@ -28,7 +28,7 @@ const field=(label,key,value,unit,step='0.01')=>`<label>${esc(label)}<span class
 
 const shareField=(k,i)=>field(T('Umsatzanteil'),`share:${i}`,k.share,'%','0.1').replace('<span class="control">',`<span class="share-controls"><span class="share-logo-tile">${mixLogos[k.id].map(brand=>`<img src="payment-logos/${brand}.svg" alt="${logoNames[brand]}" width="38" height="24">`).join('')}</span><span class="control">`).replace('</span></label>','</span></span></label>');
 function renderMix(){
-  $('mix').innerHTML=kinds.map((k,i)=>`<div class="mix-row"><strong>${esc(T(k.id))}</strong>${shareField(k,i)}${k.id==='twint'?`<span class="mix-note">${T('noInterchange')}</span>`:field(T('Interchange'),`ic:${i}`,k.ic,'%','0.001')+field(T('Scheme Fee'),`scheme:${i}`,k.scheme,'%','0.001')}</div>`).join('');
+  $('mix').innerHTML=`<div class="mix-columns"><section class="mix-box mix-distribution"><h3>${T('mixBoxTitle')}</h3>${kinds.map((k,i)=>`<div class="mix-box-row"><strong>${esc(T(k.id))}</strong>${shareField(k,i)}</div>`).join('')}<p id="mix-status" class="subtle"></p></section><section class="mix-box mix-reference"><h3>${T('referenceBoxTitle')}</h3>${kinds.map((k,i)=>`<div class="mix-box-row"><strong>${esc(T(k.id))}</strong><div class="reference-fields">${k.id==='twint'?`<span class="mix-note">${T('noInterchange')}</span>`:field(T('Interchange'),`ic:${i}`,k.ic,'%','0.001')+field(T('Scheme Fee'),`scheme:${i}`,k.scheme,'%','0.001')}</div></div>`).join('')}</section></div>`;
   $('mix').oninput=e=>{const [key,i]=(e.target.dataset.key||'').split(':');if(key){kinds[+i][key]=e.target.value;calculate();}};
   $('tx-mix').innerHTML=kinds.map((k,i)=>`<label>${esc(T(k.id))}<span class="control"><input data-tx="${i}" type="number" min="0" step="1" inputmode="numeric" value="${esc(k.tx)}" placeholder="${esc(example(String([3000,3000,2500,1500,0][i])))}"><b>TRX</b></span></label>`).join('');
   $('tx-mix').oninput=e=>{if(e.target.dataset.tx!=null){kinds[+e.target.dataset.tx].tx=e.target.value;calculate();}};
@@ -121,3 +121,4 @@ window.PCCCalculator={refresh:calculate,
 };
 I.setLang('de');I.staticText();renderMix();renderOffers();refreshLanguage('de');
 })();
+

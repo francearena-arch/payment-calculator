@@ -1,6 +1,6 @@
 {
   "name": "proposition-competition-comparator",
-  "version": "5.5.10",
+  "version": "5.5.11",
   "private": true,
   "type": "module",
   "scripts": {
@@ -19,3 +19,4 @@
     "node": ">=22"
   }
 }
+

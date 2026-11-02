@@ -301,3 +301,25 @@ input::placeholder{color:#9196a8!important;opacity:1;font-weight:400}input:place
 #mix .mix-note{display:flex;align-items:center;align-self:end;min-width:0;height:52px;min-height:52px;margin:0;line-height:1.5}
 @media(max-width:760px){#mix .mix-row{grid-template-columns:repeat(2,minmax(0,1fr))}#mix .mix-row>label:first-of-type{grid-column:1/-1}}
 @media(max-width:380px){#mix .share-logo-tile{flex-basis:136px;gap:4px;padding:5px}#mix .share-logo-tile img{flex-basis:28px;width:28px;max-width:28px}}
+
+
+/* Payment mix and editable IC++ reference values */
+.mix-explanation{margin-bottom:4px}.mix-reference-help{margin-top:0}
+#mix .mix-columns{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:16px;margin-top:18px}
+#mix .mix-box{min-width:0;border:1px solid #e2e4ee;border-radius:14px;padding:16px;background:#fff}
+#mix .mix-reference{background:#f1f2f6}
+#mix .mix-box h3{font-size:14px;line-height:1.5;margin:0 0 10px;color:#202344;min-height:42px}
+#mix .mix-box-row{min-width:0;height:120px;border-bottom:1px solid #dfe2ec;padding:12px 0}
+#mix .mix-box-row>strong{display:block;font-size:12px;line-height:18px;margin-bottom:6px}
+#mix .mix-box-row label{font-size:11px;min-width:0}
+#mix .reference-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;min-width:0}
+#mix .mix-box .control{height:52px;min-height:52px;margin-top:6px}
+#mix .mix-box .control input{height:50px;padding:10px;font-size:15px;min-width:0}
+#mix .mix-box .share-controls{gap:8px;margin-top:6px}
+#mix .mix-box .share-controls .control{margin-top:0;flex:1;min-width:0}
+#mix .mix-box .share-logo-tile{flex:0 0 144px;gap:4px}
+#mix .mix-box .share-logo-tile img{flex:0 1 28px;max-width:28px;width:28px}
+#mix .mix-box .mix-note{grid-column:1/-1;height:73px;min-height:73px;align-self:center;align-items:center}
+#mix-status{margin-bottom:0}
+@media(max-width:760px){#mix .mix-columns{grid-template-columns:minmax(0,1fr)}#mix .mix-box h3{min-height:0}#mix .mix-box-row{height:auto;min-height:120px}}
+@media(max-width:380px){#mix .mix-box{padding:12px}#mix .mix-box .share-logo-tile{flex-basis:126px;gap:3px}#mix .mix-box .share-logo-tile img{max-width:25px;width:25px}}
