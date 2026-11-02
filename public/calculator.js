@@ -7,9 +7,9 @@ const num=v=>C.number(v);
 const exampleKinds=[
   {id:'mcDebit',tx:'',share:'30',ic:'0.20',scheme:'0.12'},
   {id:'visaDebit',tx:'',share:'30',ic:'0.20',scheme:'0.12'},
-  {id:'mcCredit',tx:'',share:'12.5',ic:'0.40',scheme:'0.15'},
-  {id:'visaCredit',tx:'',share:'12.5',ic:'0.40',scheme:'0.15'},
-  {id:'twint',tx:'',share:'15',ic:'',scheme:''},
+  {id:'mcCredit',tx:'',share:'15',ic:'0.40',scheme:'0.15'},
+  {id:'visaCredit',tx:'',share:'15',ic:'0.40',scheme:'0.15'},
+  {id:'twint',tx:'',share:'10',ic:'',scheme:''},
   {id:'other',tx:'',share:'0',ic:'1.50',scheme:'0.70'}
 ];
 const kinds=exampleKinds.map(k=>({...k}));
