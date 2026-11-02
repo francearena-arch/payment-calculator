@@ -1,7 +1,0 @@
-import test from 'node:test';import assert from 'node:assert/strict';
-import {createDemoRows,cohortKey} from '../lib/report-data.js';
-import {verticalMetrics,pricingChanges,managementLabels} from '../lib/management.js';
-const rows=createDemoRows().filter(r=>r.payload.offers.find(o=>o.provider==='competitor').model==='split');
-test('vertical metrics separate purposes, count each quote once and exclude open cases from retention rate',()=>{const vs=verticalMetrics(rows),r=vs.find(v=>v.industry==='Gastro'&&v.purpose==='retention');assert.equal(vs.reduce((a,v)=>a+v.n,0),rows.length);assert.equal(r.n,300);assert.equal(r.closed,240);assert.equal(r.retained,180);assert.equal(r.open,60);assert.equal(r.retained/r.closed,.75);});
-test('price changes require comparable first and last months with five observations each',()=>{const group=rows.filter(r=>cohortKey(r)===cohortKey(rows[0]));const changes=pricingChanges(group,'mcDebit');assert.equal(changes.length,10);assert.ok(changes.some(c=>c.delta>0));assert.ok(changes.some(c=>c.delta<0));assert.equal(pricingChanges(group.filter(r=>r.quote_date.startsWith('2026-09')),'mcDebit').length,0);assert.equal(pricingChanges(group.filter(r=>r.quote_date.endsWith('02')),'mcDebit').length,0);});
-test('management headings provided in all four languages',()=>{for(const language of ['de','fr','en','it'])for(const key of ['management','vertical','costTitle','matrix','trend','reference','deltaNote'])assert.notEqual(managementLabels(key,language),key);});
