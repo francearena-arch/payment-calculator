@@ -332,3 +332,9 @@ input::placeholder{color:#9196a8!important;opacity:1;font-weight:400}input:place
 #mix-preview .mix-logos img{flex:0 0 56px;min-width:56px;max-width:56px;width:56px;height:36px;object-fit:contain}
 @media(max-width:900px){#mix-preview{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:720px){#mix-preview{grid-template-columns:minmax(0,1fr)}}
+
+/* Secondary JSON export action; preserve the shared responsive button geometry. */
+#actions #export-json{background:#fff;color:#3835a9;border:3px solid #3835a9;padding:10px 13px}
+#actions #export-json:hover:not(:disabled){background:#f4f3ff}
+#actions #export-json:focus-visible{outline:3px solid #7773df;outline-offset:3px}
+@media(max-width:600px){#actions #export-json{padding:9px 5px}}
