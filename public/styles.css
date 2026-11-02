@@ -330,5 +330,5 @@ input::placeholder{color:#9196a8!important;opacity:1;font-weight:400}input:place
 /* Shared logo dimensions; only the summary order changes. */
 #mix-preview .mix-logos{height:36px;min-height:36px;gap:4px}
 #mix-preview .mix-logos img{flex:0 0 56px;min-width:56px;max-width:56px;width:56px;height:36px;object-fit:contain}
-@media(max-width:1050px){#mix-preview{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:900px){#mix-preview{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:720px){#mix-preview{grid-template-columns:minmax(0,1fr)}}
