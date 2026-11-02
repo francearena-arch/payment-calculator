@@ -117,6 +117,12 @@ window.PaymentI18n=(()=>{
   };
   D.assumptions=['Zahlungsarten-Mix, Interchange und Scheme Fees','Répartition des paiements, Interchange et frais de réseau','Payment mix, interchange and scheme fees','Ripartizione pagamenti, Interchange e Scheme Fee'];
   D.mixExplanation=['Der Mix bestimmt, wie die Umsätze auf Debit Mastercard, Visa Debit, Credit Visa / Mastercard, TWINT und weitere Karten verteilt werden.','La répartition détermine la distribution du chiffre d’affaires entre Debit Mastercard, Visa Debit, Credit Visa / Mastercard, TWINT et les autres cartes.','The mix determines how turnover is split between Debit Mastercard, Visa Debit, Credit Visa / Mastercard, TWINT and other cards.','La ripartizione determina come il fatturato viene suddiviso tra Debit Mastercard, Visa Debit, Credit Visa / Mastercard, TWINT e altre carte.'];
+  D.mcCredit=['Credit Mastercard','Credit Mastercard','Credit Mastercard','Credit Mastercard'];
+  D.visaCredit=['Credit Visa','Credit Visa','Credit Visa','Credit Visa'];
+  D.visaDebit=['Debit Visa','Debit Visa','Debit Visa','Debit Visa'];
+  D.referenceBoxTitle=['Interchange & Scheme Fee','Interchange & frais de réseau','Interchange & Scheme Fee','Interchange & Scheme Fee'];
+  D.mixReferenceHelp=['Die hinterlegten Interchange & Scheme Fees sind Referenzwerte und müssen zum Merchant passen.','Les Interchange et frais de réseau renseignés sont des valeurs de référence et doivent correspondre au commerçant.','The interchange and scheme fees provided are reference values and must match the merchant.','Le Interchange e Scheme Fee inserite sono valori di riferimento e devono essere adatte al merchant.'];
+  D.mixExplanation=D.mixExplanation.map(t=>t.replace('Visa Debit','Debit Visa').replace('Credit Visa / Mastercard','Credit Mastercard, Credit Visa'));
   let lang='de';
   function t(key,vars={}){const row=D[key];let v=row?row[['de','fr','en','it'].indexOf(lang)]:key;return String(v).replace(/\{(\w+)\}/g,(_,k)=>vars[k]??'');}
   function setLang(value){lang=locale[value]?value:'de';document.documentElement.lang=locale[lang];document.title=t('product');}

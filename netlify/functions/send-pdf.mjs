@@ -19,7 +19,7 @@ export function makeHandler({env=process.env,send=fetch,pause=ms=>new Promise(r=
    if(!comparison||typeof comparison==='string'||comparison.type!=='application/json'||comparison.size>250000)return reply(400,'comparison');
    const json=Buffer.from(await comparison.arrayBuffer());let snapshot;
    try{snapshot=JSON.parse(json.toString('utf8'));}catch{return reply(400,'comparison');}
-   if(!snapshot||snapshot.comparisonId!==id||snapshot.schemaVersion!=='1.2.0'||snapshot.currency!=='CHF'||typeof snapshot.customerName!=='string'||!snapshot.customerName.trim()||snapshot.customerName.length>160||!snapshot.inputs||!Array.isArray(snapshot.results)||typeof snapshot.createdAt!=='string'||!/^\d{4}-\d{2}-\d{2}T/.test(snapshot.createdAt)||!Number.isFinite(Date.parse(snapshot.createdAt)))return reply(400,'comparison');
+   if(!snapshot||snapshot.comparisonId!==id||!['1.2.0','1.3.0'].includes(snapshot.schemaVersion)||snapshot.currency!=='CHF'||typeof snapshot.customerName!=='string'||!snapshot.customerName.trim()||snapshot.customerName.length>160||!snapshot.inputs||!Array.isArray(snapshot.results)||typeof snapshot.createdAt!=='string'||!/^\d{4}-\d{2}-\d{2}T/.test(snapshot.createdAt)||!Number.isFinite(Date.parse(snapshot.createdAt)))return reply(400,'comparison');
    const customer=snapshot.customerName.replace(/[\p{Cc}\p{Cf}\p{Zl}\p{Zp}]/gu,' ').replace(/\s+/g,' ').trim();
    if(!customer)return reply(400,'comparison');
    const date=new Intl.DateTimeFormat('de-CH',{timeZone:'Europe/Zurich',day:'2-digit',month:'2-digit',year:'numeric'}).format(new Date(snapshot.createdAt));
@@ -35,3 +35,4 @@ export function makeHandler({env=process.env,send=fetch,pause=ms=>new Promise(r=
  };
 }
 export default makeHandler();
+

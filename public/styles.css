@@ -323,3 +323,6 @@ input::placeholder{color:#9196a8!important;opacity:1;font-weight:400}input:place
 #mix-status{margin-bottom:0}
 @media(max-width:760px){#mix .mix-columns{grid-template-columns:minmax(0,1fr)}#mix .mix-box h3{min-height:0}#mix .mix-box-row{height:auto;min-height:120px}}
 @media(max-width:380px){#mix .mix-box{padding:12px}#mix .mix-box .share-logo-tile{flex-basis:126px;gap:3px}#mix .mix-box .share-logo-tile img{max-width:25px;width:25px}}
+
+#mix-preview{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media(max-width:600px){#mix-preview{grid-template-columns:repeat(2,minmax(0,1fr))}}

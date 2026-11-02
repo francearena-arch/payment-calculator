@@ -45,3 +45,17 @@ test('per-offer IC and Scheme Fee percentages and CHF fixed amounts are independ
  assert.equal(actual.interchange,595);assert.equal(actual.scheme,467.5);assert.equal(actual.total,4212.5);
  const rival={...offer,cardAssumptions:structuredClone(offer.cardAssumptions)};rival.cardAssumptions.mcDebit.schemeFixed=.10;assert.equal(cost(rival,c).scheme-actual.scheme,210);assert.equal(cost(offer,c).scheme,467.5);
 });
+
+
+test('separate credit brands retain totals and independently weight quote rates, fixed fees and IC++',()=>{
+ const {context,cost,offer}=fixture(),c={volume:500000,tx:10000};
+ context.kinds.splice(2,1,{id:'mcCredit',share:12.5,ic:.4,scheme:.15},{id:'visaCredit',share:12.5,ic:.4,scheme:.15});
+ delete offer.rates.credit;delete offer.fixed.credit;
+ Object.assign(offer.rates,{mcCredit:1.4,visaCredit:1.4});Object.assign(offer.fixed,{mcCredit:0,visaCredit:0});
+ assert.equal(cost(offer,c).total,6587.5);
+ offer.rates.mcCredit=2.4;assert.equal(cost(offer,c).total,7212.5);
+ offer.fixed.visaCredit=.1;assert.equal(cost(offer,c).total,7337.5);
+ offer.model='icpp';offer.fixed.visaCredit=0;assert.equal(cost(offer,c).total,4797.5);
+ context.kinds.find(k=>k.id==='mcCredit').ic=.8;assert.equal(cost(offer,c).total,5047.5);
+ context.kinds.find(k=>k.id==='visaCredit').scheme=.35;assert.equal(cost(offer,c).total,5172.5);
+});

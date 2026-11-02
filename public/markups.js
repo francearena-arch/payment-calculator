@@ -36,7 +36,7 @@ window.PCCMarkups=(()=>{'use strict';
  function validate(kinds,offers){
   const values=Object.fromEntries(keys.map(k=>[k,number(shares[k])||0]));
   const share=id=>Number(kinds.find(k=>k.id===id)?.share)||0;
-  const eligible=share('mcDebit')+share('visaDebit')+share('credit'),debit=share('mcDebit')+share('visaDebit'),foreign=values.intra+values.inter;
+  const eligible=share('mcDebit')+share('visaDebit')+share('credit')+share('mcCredit')+share('visaCredit'),debit=share('mcDebit')+share('visaDebit'),foreign=values.intra+values.inter;
   if(keys.some(k=>shares[k]!==''&&number(shares[k])===null)||foreign>eligible+1e-8||values.commercial>foreign+1e-8||values.debitToken>Math.min(debit,eligible-foreign)+1e-8)return {valid:false,error:t('invalid')};
   if(active()&&offers.some(o=>{const p=o.cardMarkup;if(!p||!['included','nexi','worldline','custom'].includes(p.mode))return true;if(p.mode==='nexi')return o.provider!=='Nexi'||o.model!=='split';if(p.mode==='worldline')return o.selectedProvider!=='Worldline'||o.model!=='split'||values.debitToken>0;return p.mode==='custom'&&keys.some(k=>values[k]>0&&number(p.rates[k])===null);}))return {valid:false,error:t('policyError')};
   return {valid:true,error:''};
@@ -54,3 +54,4 @@ window.PCCMarkups=(()=>{'use strict';
  }
  return {keys,tariff,source,t,number,make,active,validate,cost,snapshot,render,shares};
 })();
+
