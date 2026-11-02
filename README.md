@@ -1,4 +1,4 @@
-# Nexi Payment Calculator 5.5.17
+# Nexi Payment Calculator 5.5.18
 
 Stateless browser calculator for one Nexi offer against one competitor offer. Each side independently supports Split Blend or IC++. DE/FR/EN/IT UI and PDF output are supported.
 
@@ -145,3 +145,8 @@ Calculation visibility depends on valid inputs, independently of the pricing ack
 
 PDF creation stays actionable after manual edits, regardless of the optional pricing acknowledgement. Validation runs on click: incomplete/invalid comparisons cannot produce or send a misleading PDF. A valid click always attempts automatic PDF+JSON email delivery before opening the local PDF. The button is disabled only while an export/send is running, to prevent duplicate concurrent submissions. The acknowledgement remains accurately recorded as true/false in exports.
 
+
+
+## 5.5.18 language quality
+
+English, French and Italian copy has been revised across the interface, validation and PDF export. Industry names are localised for display only; stored option IDs, tariffs, formulas and the approved German internal email remain unchanged. Setup cost labels now accurately describe one-off setup in the first year. See docs/RELEASE-5.5.18.md for scope and validation.
